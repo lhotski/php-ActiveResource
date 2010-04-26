@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of the php-ActiveResource.
+ * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/Connections/HTTP_Request2_Adapter_UrlMock.php';
 

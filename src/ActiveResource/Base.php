@@ -1,11 +1,5 @@
 <?php
 
-namespace ActiveResource;
-
-use ActiveResource\Connections\Connection;
-use ActiveResource\Responses\Response;
-use ActiveResource\Ext\Inflector;
-
 /*
  * This file is part of the php-ActiveResource.
  * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
@@ -13,6 +7,12 @@ use ActiveResource\Ext\Inflector;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+namespace ActiveResource;
+
+use ActiveResource\Connections\Connection;
+use ActiveResource\Responses\Response;
+use ActiveResource\Ext\Inflector;
 
 /**
  * Base implements base REST model abstraction class.
