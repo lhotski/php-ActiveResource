@@ -32,6 +32,11 @@ class ResourceCollection
     $this->connection = $connection;
   }
 
+  public function __get($name)
+  {
+    return $this->getResource($name);
+  }
+
   public function getResource($name)
   {
     $class = $this->generateClassName($name);
