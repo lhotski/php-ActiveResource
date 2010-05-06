@@ -11,6 +11,8 @@
 namespace ActiveResource;
 
 use ActiveResource\Connections\Connection;
+use ActiveResource\Schemas\Schema;
+use ActiveResource\Schemas\BasicSchema;
 use ActiveResource\Responses\Response;
 use ActiveResource\Ext\Inflector;
 
@@ -27,18 +29,83 @@ abstract class Base
   protected $id;
   protected $attrs = array();
   protected $connection;
+  protected $schema;
   protected $prefix_options = array();
 
   /**
    * Constructs new object
    *
    * @param   array                                   $attrs        object attributes
-   * @param   ActiveResource\Connections\Connection  $connection   connection instance
+   * @param   ActiveResource\Connections\Connection   $connection   connection instance
    */
   public function __construct(array $attrs, Connection $connection)
   {
+    $this->setConnection($connection);
+    $this->setSchema($this->initSchema());
+
     $this->load($attrs);
+  }
+
+  /**
+   * Sets current resource connection manager
+   *
+   * @param   ActiveResource\Connections\Connection   $connection   conneciton instance
+   */
+  public function setConnection(Connection $connection)
+  {
     $this->connection = $connection;
+  }
+
+  /**
+   * Returns current resource connection manager
+   *
+   * @return  ActiveResource\Connections\Connection
+   */
+  public function getConnection()
+  {
+    return $this->connection;
+  }
+
+  /**
+   * Sets current resource attribute schema
+   *
+   * @param   ActiveResource\Schemas\Schema           $schema       schema instance
+   */
+  public function setSchema(Schema $schema)
+  {
+    $this->schema = $schema;
+  }
+
+  /**
+   * Returns current resource schema
+   *
+   * @return  ActiveResource\Schemas\Schema
+   */
+  public function getSchema()
+  {
+    return $this->schema;
+  }
+
+  /**
+   * Returns new scheme for resource (override this method to set your custom schema for resource)
+   *
+   * @return  ActiveResource\Schemas\Schema
+   */
+  protected function initSchema()
+  {
+    return new BasicSchema(
+      $this->schemaDefinition()
+    );
+  }
+
+  /**
+   * Returns schema definition, used to create new schema for resource (override for custom def.)
+   *
+   * @return  array
+   */
+  protected function schemaDefinition()
+  {
+    return array();
   }
 
   /**
@@ -163,7 +230,7 @@ abstract class Base
    * @param   integer                                 $id           object id
    * @param   ActiveResource\Connections\Connection   $connection   remote service connection
    * 
-   * @return  boolean                                               true if exists, false otherway
+   * @return  boolean                                               true if exists, false otherwise
    */
   public static function isExists($id, array $prefix_options,
                                        array $query_options,
