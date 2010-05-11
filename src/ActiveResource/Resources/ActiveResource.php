@@ -25,10 +25,10 @@ class ActiveResource
   protected $resource_class;
   protected $connection;
 
-  public function __construct($resource_class, Connection $connection)
+  public function __construct($class, Connection $connection)
   {
-    $this->resource_class = $resource_class;
-    $this->connection = $connection;
+    $this->resource_class = $class;
+    $this->connection     = $connection;
   }
 
   public function __call($func, array $args)

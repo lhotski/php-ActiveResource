@@ -32,6 +32,14 @@ use ActiveResource\Exceptions\MethodNotAllowed;
 require_once 'Net/URL2.php';
 require_once 'HTTP/Request2.php';
 
+/**
+ * HTTPR2Connection implements Connection interface using HTTP_Request2 PEAR library
+ *
+ * @package    ActiveResource
+ * @subpackage Connections
+ * @author     Konstantin Kudryashov <ever.zet@gmail.com>
+ * @version    1.0.0
+ */
 class HTTPR2Connection implements Connection
 {
   protected $site;
@@ -41,6 +49,12 @@ class HTTPR2Connection implements Connection
   protected $format;
   protected $adapter = 'socket';
 
+  /**
+   * Connection constructor
+   *
+   * @param   string                        $site   base site URL
+   * @param   ActiveResource\Formats\Format $format formatter instance
+   */
   public function __construct($site, Format $format = null)
   {
     if (null === $site || empty($site))
@@ -59,16 +73,31 @@ class HTTPR2Connection implements Connection
     }
   }
 
+  /**
+   * Sets connection adapter, used to send requests & recieve responses
+   *
+   * @param   mixed   $adapter  adapter name or object
+   */
   public function setAdapter($adapter)
   {
     $this->adapter = $adapter;
   }
 
+  /**
+   * Returns current connection adapter
+   *
+   * @return  mixed             adapter name or object
+   */
   public function getAdapter()
   {
     return $this->adapter;
   }
 
+  /**
+   * Returns site pure URL (without path & user parts)
+   *
+   * @see     ActiveResource\Connections\Connection::getSite()
+   */
   public function getSite()
   {
     $user_info = $this->site->getUserinfo();
@@ -85,6 +114,11 @@ class HTTPR2Connection implements Connection
     return $site;
   }
 
+  /**
+   * Sets base site URL
+   *
+   * @see     ActiveResource\Connections\Connection::setSite()
+   */
   public function setSite($site)
   {
     if ($site instanceof \Net_URL2)
@@ -97,31 +131,61 @@ class HTTPR2Connection implements Connection
     }
   }
 
+  /**
+   * Sets base path
+   *
+   * @see     ActiveResource\Connections\Connection::setBasePath()
+   */
   public function setBasePath($path)
   {
     $this->site->setPath($path);
   }
 
+  /**
+   * Returns base path
+   *
+   * @see     ActiveResource\Connections\Connection::getBasePath()
+   */
   public function getBasePath()
   {
     return $this->site->getPath();
   }
 
+  /**
+   * Returns connection username
+   *
+   * @see     ActiveResource\Connections\Connection::getUsername()
+   */
   public function getUsername()
   {
     return $this->site->getUser();
   }
 
+  /**
+   * Returns connection password
+   *
+   * @see     ActiveResource\Connections\Connection::getPassword()
+   */
   public function getPassword()
   {
     return $this->site->getPassword();
   }
 
+  /**
+   * Returns connection auth type
+   *
+   * @see     ActiveResource\Connections\Connection::getAuthType()
+   */
   public function getAuthType()
   {
     return $this->auth_type;
   }
 
+  /**
+   * Sets connection auth routines
+   *
+   * @see     ActiveResource\Connections\Connection::setAuth()
+   */
   public function setAuth($username, $password, $auth_type = 'basic')
   {
     if (!in_array($auth_type, array('basic', 'digest')))
@@ -133,16 +197,31 @@ class HTTPR2Connection implements Connection
     $this->auth_type = $auth_type;
   }
 
+  /**
+   * Sets specific connection headers
+   *
+   * @see     ActiveResource\Connections\Connection::setHeaders()
+   */
   public function setHeaders(array $headers)
   {
     $this->headers = $headers;
   }
 
+  /**
+   * Sets specific connection headers
+   *
+   * @see     ActiveResource\Connections\Connection::setHeader()
+   */
   public function setHeader($name, $value)
   {
     $this->headers[$name] = $value;
   }
 
+  /**
+   * Returns specific connection header
+   *
+   * @see     ActiveResource\Connections\Connection::getHeader()
+   */
   public function getHeader($name)
   {
     if (!isset($this->headers[$name]))
@@ -153,26 +232,51 @@ class HTTPR2Connection implements Connection
     return $this->headers[$name];
   }
 
+  /**
+   * Returns connection timeout in ms
+   *
+   * @see     ActiveResource\Connections\Connection::getTimeout()
+   */
   public function getTimeout()
   {
     return $this->timeout;
   }
 
+  /**
+   * Sets connection timeout
+   *
+   * @see     ActiveResource\Connections\Connection::setTimeout()
+   */
   public function setTimeout($timeout)
   {
     $this->timeout = intval($timeout);
   }
 
+  /**
+   * Returns connection request/response formatter
+   *
+   * @see     ActiveResource\Connections\Connection::getFormat()
+   */
   public function getFormat()
   {
     return $this->format;
   }
 
+  /**
+   * Sets connection request/response formatter
+   *
+   * @see     ActiveResource\Connections\Connection::setFormat()
+   */
   public function setFormat(Format $format)
   {
     $this->format = $format;
   }
 
+  /**
+   * Sends GET request & returns formatted response object
+   *
+   * @see     ActiveResource\Connections\Connection::get()
+   */
   public function get($path, array $headers = array())
   {
     $response = $this->send('get', $path, null, $headers);
@@ -180,6 +284,11 @@ class HTTPR2Connection implements Connection
     return $response;
   }
 
+  /**
+   * Sends HEAD request & returns formatted response object
+   *
+   * @see     ActiveResource\Connections\Connection::head()
+   */
   public function head($path, array $headers = array())
   {
     $response = $this->send('head', $path, null, $headers);
@@ -187,6 +296,11 @@ class HTTPR2Connection implements Connection
     return $response;
   }
 
+  /**
+   * Sends DELETE request & returns formatted response object
+   *
+   * @see     ActiveResource\Connections\Connection::delete()
+   */
   public function delete($path, array $headers = array())
   {
     $response = $this->send('delete', $path, null, $headers);
@@ -194,6 +308,11 @@ class HTTPR2Connection implements Connection
     return $response;
   }
 
+  /**
+   * Sends PUT request & returns formatted response object
+   *
+   * @see     ActiveResource\Connections\Connection::put()
+   */
   public function put($path, array $body = array(), array $headers = array())
   {
     $body = $this->format->encode($body);
@@ -202,6 +321,11 @@ class HTTPR2Connection implements Connection
     return $response;
   }
 
+  /**
+   * Sends POST request & returns formatted response object
+   *
+   * @see     ActiveResource\Connections\Connection::post()
+   */
   public function post($path, array $body = array(), array $headers = array())
   {
     $body = $this->format->encode($body);
@@ -210,6 +334,16 @@ class HTTPR2Connection implements Connection
     return $response;
   }
 
+  /**
+   * Perform request creation, sending & response preparing
+   *
+   * @param   string  $method                   method name (GET, HEAD, DELETE, POST, PUT)
+   * @param   string  $path                     resource path 
+   * @param   string  $body                     request body
+   * @param   array   $headers                  headers hash
+   * 
+   * @return  ActiveResource\Responses\Response response instance
+   */
   protected function send($method, $path, $body = null, array $headers = array())
   {
     $request  = $this->prepareRequest($method, $path, $body, $headers);
@@ -291,6 +425,16 @@ class HTTPR2Connection implements Connection
     }
   }
 
+  /**
+   * Creates & prepares new request object
+   *
+   * @param   string  $method                   method name (GET, HEAD, DELETE, POST, PUT)
+   * @param   string  $path                     resource path
+   * @param   string  $body                     request body
+   * @param   array   $headers                  headers hash
+   * 
+   * @return  HTTP_Request2                     request object
+   */
   protected function prepareRequest($method, $path, $body, array $headers)
   {
     $request = new \HTTP_Request2($this->prepareUrl($path));
@@ -325,6 +469,13 @@ class HTTPR2Connection implements Connection
     return $request;
   }
 
+  /**
+   * Prepares request URL
+   *
+   * @param   string  $path                     resource path
+   * 
+   * @return  string                            request URL
+   */
   protected function prepareUrl($path)
   {
     $site = new \Net_URL2($this->getSite());
@@ -335,6 +486,13 @@ class HTTPR2Connection implements Connection
     return $site->getUrl();
   }
 
+  /**
+   * Prepares request headers
+   *
+   * @param   array   $headers                  headers hash
+   * 
+   * @return  array                             prepared headers
+   */
   protected function prepareHeaders(array $headers = array())
   {
     return array_merge(
@@ -347,6 +505,13 @@ class HTTPR2Connection implements Connection
     );
   }
 
+  /**
+   * Converts HTTP_Request2 response object into ActiveResource's one
+   *
+   * @param   HTTP_Request2_Response            $response recieved response object
+   * 
+   * @return  ActiveResource\Responses\Response           response object
+   */
   protected function prepareResponse(\HTTP_Request2_Response $response)
   {  
     $body     = trim($response->getBody());
