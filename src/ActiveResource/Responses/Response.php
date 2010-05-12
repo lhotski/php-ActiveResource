@@ -10,6 +10,14 @@
 
 namespace ActiveResource\Responses;
 
+/**
+ * Response interface describes base AR response object
+ *
+ * @package     ActiveResource
+ * @subpackage  Responses
+ * @author      Konstantin Kudryashov <ever.zet@gmail.com>
+ * @version     1.0.0
+ */
 interface Response
 {
   /**
