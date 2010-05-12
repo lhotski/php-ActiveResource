@@ -12,7 +12,7 @@ namespace ActiveResource;
 
 use ActiveResource\Connections\Connection;
 use ActiveResource\Schemas\Schema;
-use ActiveResource\Schemas\AttrSchema;
+use ActiveResource\Schemas\Attributes;
 use ActiveResource\Responses\Response;
 use ActiveResource\Ext\Inflector;
 
@@ -93,7 +93,7 @@ abstract class Base
    */
   protected function initSchema()
   {
-    return new AttrSchema(
+    return new Attributes(
       $this->schemaDefinition()
     );
   }
