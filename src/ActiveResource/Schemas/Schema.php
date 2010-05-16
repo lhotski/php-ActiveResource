@@ -16,5 +16,5 @@ interface Schema
   public function set($name, $value = null);
   public function get($name);
   public function setValues(array $values);
-  public function getValuesArray();
+  public function getValues();
 }

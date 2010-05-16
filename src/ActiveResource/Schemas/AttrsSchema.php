@@ -4,10 +4,16 @@ namespace ActiveResource\Schemas;
 
 use ActiveResource\Ext\Inflector;
 
-class Attributes implements Schema
+class AttrsSchema implements Schema
 {
   protected $definitions = array();
   protected $values = array();
+
+  public function __construct(array $attrs = array(), array $values = array())
+  {
+    $this->setAttributes($attrs);
+    $this->setValues($values);
+  }
 
   public function setAttributes(array $attrs)
   {
@@ -100,7 +106,7 @@ class Attributes implements Schema
     }
   }
 
-  public function getValuesArray()
+  public function getValues()
   {
     $values = array();
 
@@ -124,7 +130,11 @@ class Attributes implements Schema
 
   protected function guessType($value)
   {
-    if (is_float($value))
+    if (is_string($value))
+    {
+      return 'string';
+    }
+    elseif (is_float($value))
     {
       return 'float';
     }
@@ -147,10 +157,6 @@ class Attributes implements Schema
     if (is_int($value))
     {
       return 'integer';
-    }
-    elseif (is_string($value))
-    {
-      return 'string';
     }
     elseif (is_object($value))
     {

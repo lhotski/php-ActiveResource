@@ -12,7 +12,7 @@ namespace ActiveResource;
 
 use ActiveResource\Connections\Connection;
 use ActiveResource\Schemas\Schema;
-use ActiveResource\Schemas\Attributes;
+use ActiveResource\Schemas\AttrsSchema;
 use ActiveResource\Responses\Response;
 use ActiveResource\Ext\Inflector;
 
@@ -27,7 +27,6 @@ use ActiveResource\Ext\Inflector;
 abstract class Base
 {  
   protected $id;
-  protected $attrs = array();
   protected $connection;
   protected $schema;
   protected $prefix_options = array();
@@ -93,7 +92,7 @@ abstract class Base
    */
   protected function initSchema()
   {
-    return new Attributes(
+    return new AttrsSchema(
       $this->schemaDefinition()
     );
   }
@@ -154,7 +153,7 @@ abstract class Base
       unset($attrs['id']);
     }
 
-    $this->attrs = $attrs;
+    $this->schema->setValues($attrs);
   }
 
   /**
@@ -190,7 +189,7 @@ abstract class Base
    */
   public function __get($name)
   {
-    return isset($this->attrs[$name]) ? $this->attrs[$name] : null;
+    return $this->schema->get($name);
   }
 
   /**
@@ -201,7 +200,7 @@ abstract class Base
    */
   public function __set($name, $value)
   {
-    $this->attrs[$name] = $value;
+    $this->schema->set($name, $value);
   }
 
   /**
@@ -745,7 +744,7 @@ abstract class Base
   protected function create()
   {
     $prepared_attrs = array();
-    $prepared_attrs[$this->getElementName()] = $this->attrs;
+    $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
     $response = $this->connection->post($this->getCollectionPath(), $prepared_attrs);
 
@@ -768,7 +767,7 @@ abstract class Base
   protected function update()
   {
     $prepared_attrs = array();
-    $prepared_attrs[$this->getElementName()] = $this->attrs;
+    $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
     $response = $this->connection->put($this->getElementPath($this->getId()), $prepared_attrs);
     $this->loadAttributesFromResponse($response);
