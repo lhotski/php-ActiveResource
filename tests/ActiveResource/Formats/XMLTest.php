@@ -220,4 +220,3 @@ XML
     $this->assertEquals($xml, $format->encode(array($root_name => $data)), 'Correctly encoded');
   }
 }
-

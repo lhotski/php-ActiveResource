@@ -435,7 +435,8 @@ abstract class Base
     if ($this->isNew())
     {
       $response = $this->connection->get(
-        self::getCustomMethodNewElementPath($method_name, $prefix_options, $query_options)
+        self::getCustomMethodNewElementPath($method_name, $prefix_options, $query_options),
+        array('accept' => self::getFormat()->getMimeType())
       );
     }
     else
@@ -443,7 +444,8 @@ abstract class Base
       $response = $this->connection->get(
         self::getCustomMethodElementPath(
           $method_name, $this->getId(), $prefix_options, $query_options
-        )
+        ),
+        array('accept' => self::getFormat()->getMimeType())
       );
     }
     $attrs = self::getFormat()->decode($response->getBody());
@@ -457,7 +459,8 @@ abstract class Base
     list($prefix_options, $query_options) = self::splitParams($params);
 
     $response = $connection->get(
-      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options)
+      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options),
+      array('accept' => self::getFormat()->getMimeType())
     );
     $attrs = self::getFormat()->decode($response->getBody());
 
@@ -472,7 +475,11 @@ abstract class Base
     if ($this->isNew())
     {
       $response = $this->connection->post(
-        self::getCustomMethodNewElementPath($method_name, $prefix_options, $query_options), $body
+        self::getCustomMethodNewElementPath($method_name, $prefix_options, $query_options), $body,
+        array(
+          'accept'        => self::getFormat()->getMimeType(),
+          'content-type'  => self::getFormat()->getMimeType()
+        )
       );
     }
     else
@@ -480,7 +487,11 @@ abstract class Base
       $response = $this->connection->post(
         self::getCustomMethodElementPath(
           $method_name, $this->getId(), $prefix_options, $query_options
-        ), $body
+        ), $body,
+        array(
+          'accept'        => self::getFormat()->getMimeType(),
+          'content-type'  => self::getFormat()->getMimeType()
+        )
       );
     }
 
@@ -494,7 +505,11 @@ abstract class Base
     $body = self::getFormat()->encode(array('request' => $body));
 
     $response = $connection->post(
-      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body
+      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body,
+      array(
+        'accept'        => self::getFormat()->getMimeType(),
+        'content-type'  => self::getFormat()->getMimeType()
+      )
     );
 
     return 201 === $response->getCode();
@@ -508,7 +523,11 @@ abstract class Base
     $response = $this->connection->put(
       self::getCustomMethodElementPath(
         $method_name, $this->getId(), $prefix_options, $query_options
-      ), $body
+      ), $body,
+      array(
+        'accept'        => self::getFormat()->getMimeType(),
+        'content-type'  => self::getFormat()->getMimeType()
+      )
     );
 
     return 204 === $response->getCode() || 200 === $response->getCode();
@@ -521,7 +540,11 @@ abstract class Base
     $body = self::getFormat()->encode(array('request' => $body));
 
     $response = $connection->put(
-      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body
+      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body,
+      array(
+        'accept'        => self::getFormat()->getMimeType(),
+        'content-type'  => self::getFormat()->getMimeType()
+      )
     );
 
     return 204 === $response->getCode() || 200 === $response->getCode();
@@ -534,7 +557,8 @@ abstract class Base
     $response = $this->connection->delete(
       self::getCustomMethodElementPath(
         $method_name, $this->getId(), $prefix_options, $query_options
-      )
+      ),
+      array('accept' => self::getFormat()->getMimeType())
     );
 
     return 200 === $response->getCode();
@@ -546,7 +570,8 @@ abstract class Base
     list($prefix_options, $query_options) = self::splitParams($params);
 
     $response = $connection->delete(
-      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options)
+      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options),
+      array('accept' => self::getFormat()->getMimeType())
     );
 
     return 200 === $response->getCode();
@@ -558,7 +583,8 @@ abstract class Base
 
     $response = $this->connection->head(
       self::getCustomMethodElementPath(
-        $method_name, $this->getId(), $prefix_options, $query_options
+        $method_name, $this->getId(), $prefix_options, $query_options,
+        array('accept' => self::getFormat()->getMimeType())
       )
     );
 
@@ -571,7 +597,8 @@ abstract class Base
     list($prefix_options, $query_options) = self::splitParams($params);
 
     $response = $connection->head(
-      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options)
+      self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options),
+      array('accept' => self::getFormat()->getMimeType())
     );
 
     return 200 === $response->getCode();
