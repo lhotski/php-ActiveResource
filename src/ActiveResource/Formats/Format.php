@@ -46,9 +46,9 @@ interface Format
   /**
    * Decodes resource attributes to object values
    *
-   * @param   string  $xml  response body
+   * @param   string  $body response body
    * 
    * @return  array         object values
    */
-  public function decode($xml);
+  public function decode($body);
 }

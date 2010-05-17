@@ -37,9 +37,9 @@ class XML implements Format
     return trim($dom->saveXML($dom->documentElement));
   }
 
-  public function decode($xml)
+  public function decode($body)
   {
-    $elements = new \SimpleXMLElement($xml);
+    $elements = new \SimpleXMLElement($body);
 
     return $this->nodeToArray($elements);
   }
