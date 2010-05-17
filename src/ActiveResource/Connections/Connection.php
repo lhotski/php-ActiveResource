@@ -10,8 +10,6 @@
 
 namespace ActiveResource\Connections;
 
-use ActiveResource\Formats\Format as Format;
-
 /**
  * Connection interface describes base connection object
  *
