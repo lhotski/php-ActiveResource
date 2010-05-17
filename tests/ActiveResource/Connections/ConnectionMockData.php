@@ -62,10 +62,6 @@ RESPONSE
   </project>
 </projects>
 BODY
-    ,'decoded'  => array('projects' => array(
-      array('user_id' => 14, 'username' => 'everzet', 'subfields' => array('sub_id' => 12)),
-      array('user_id' => 5, 'username' => 'test-user', 'subfields' => array('sub_id' => 104)),
-    ))
     ,'path'     => '/projects.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/projects.xml'
     ,'code'     => 200
@@ -105,7 +101,6 @@ RESPONSE
   </subfields>
 </project>
 BODY
-    ,'decoded'  => array('project' => array('id' => 2, 'user_id' => 5, 'username' => 'test-user', 'subfields' => array('sub_id' => 104)))
     ,'path'     => '/project/2.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 200
@@ -126,7 +121,6 @@ Status: 201
 
 RESPONSE
     ,'body'     => null
-    ,'decoded'  => null
     ,'path'     => '/project/2.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 201
