@@ -15,6 +15,7 @@ use ActiveResource\Schemas\Schema;
 use ActiveResource\Schemas\AttrsSchema;
 use ActiveResource\Responses\Response;
 use ActiveResource\Ext\Inflector;
+use ActiveResource\Formats\Format;
 
 /**
  * Base implements base REST model abstraction class.
@@ -40,7 +41,7 @@ abstract class Base
   public function __construct(array $attrs, Connection $connection)
   {
     $this->setConnection($connection);
-    $this->setSchema($this->initSchema());
+    $this->setSchema(self::initSchema());
 
     $this->load($attrs);
   }
@@ -90,10 +91,10 @@ abstract class Base
    *
    * @return  ActiveResource\Schemas\Schema
    */
-  protected function initSchema()
+  protected static function initSchema()
   {
     return new AttrsSchema(
-      $this->schemaDefinition()
+      self::schemaDefinition()
     );
   }
 
@@ -102,9 +103,48 @@ abstract class Base
    *
    * @return  array
    */
-  protected function schemaDefinition()
+  protected static function schemaDefinition()
   {
     return array();
+  }
+
+  /**
+   * Returns new Formatter instance
+   *
+   * @return  ActiveResource\Formats\Format formatter instance
+   */
+  protected static function getFormat()
+  {
+    static $format;
+
+    if (null === $format)
+    {
+      $format = self::initFormat();
+    }
+
+    return $format;
+  }
+
+  /**
+   * Creates new Formatter instance
+   *
+   * @return  ActiveResource\Formats\Format formatter instance
+   */
+  protected static function initFormat()
+  {
+    $class = self::formatClass();
+
+    return new $class;
+  }
+
+  /**
+   * Returns Formatter class name
+   *
+   * @return  string                        formatter class
+   */
+  protected static function formatClass()
+  {
+    return 'ActiveResource\\Formats\\XML';
   }
 
   /**
@@ -263,9 +303,8 @@ abstract class Base
    */
   public static function build(array $prefix_options, array $query_options, Connection $connection)
   {
-    $body  = $connection->
-      get(self::getNewElementPath($prefix_options, $query_options))->
-      getDecodedBody();
+    $response = $connection->get(self::getNewElementPath($prefix_options, $query_options));
+    $body     = self::getFormat()->decode($response->getBody());
 
     $attrs = $body[self::getElementName()];
     $class = get_called_class();
@@ -407,7 +446,7 @@ abstract class Base
         )
       );
     }
-    $attrs = $response->getDecodedBody();
+    $attrs = self::getFormat()->decode($response->getBody());
 
     return $attrs[end(array_keys($attrs))];
   }
@@ -420,7 +459,7 @@ abstract class Base
     $response = $connection->get(
       self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options)
     );
-    $attrs = $response->getDecodedBody();
+    $attrs = self::getFormat()->decode($response->getBody());
 
     return $attrs[end(array_keys($attrs))];
   }
@@ -428,7 +467,7 @@ abstract class Base
   public function elementPost($method_name, array $params = array(), array $body = array())
   {
     list($prefix_options, $query_options) = self::splitParams($params);
-    $body = array('request' => $body);
+    $body = self::getFormat()->encode(array('request' => $body));
 
     if ($this->isNew())
     {
@@ -452,7 +491,7 @@ abstract class Base
                                                       array $body = array(), Connection $connection)
   {
     list($prefix_options, $query_options) = self::splitParams($params);
-    $body = array('request' => $body);
+    $body = self::getFormat()->encode(array('request' => $body));
 
     $response = $connection->post(
       self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body
@@ -464,7 +503,7 @@ abstract class Base
   public function elementPut($method_name, array $params = array(), array $body = array())
   {
     list($prefix_options, $query_options) = self::splitParams($params);
-    $body = array('request' => $body);
+    $body = self::getFormat()->encode(array('request' => $body));
 
     $response = $this->connection->put(
       self::getCustomMethodElementPath(
@@ -479,7 +518,7 @@ abstract class Base
                                                      array $body = array(), Connection $connection)
   {
     list($prefix_options, $query_options) = self::splitParams($params);
-    $body = array('request' => $body);
+    $body = self::getFormat()->encode(array('request' => $body));
 
     $response = $connection->put(
       self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body
@@ -549,9 +588,10 @@ abstract class Base
   protected static function getCollectionPath(array $prefix_options = array(),
                                               array $query_options = array())
   {
-    return sprintf('%s%s.:extension:%s',
+    return sprintf('%s%s.%s%s',
       self::getPrefix($prefix_options),
       self::getCollectionName(),
+      self::getFormat()->getExtension(),
       self::getQueryString($query_options)
     );
   }
@@ -568,10 +608,11 @@ abstract class Base
                                                           array $prefix_options = array(),
                                                           array $query_options = array())
   {
-    return sprintf('%s%s/%s.:extension:%s',
+    return sprintf('%s%s/%s.%s%s',
       self::getPrefix($prefix_options),
       self::getCollectionName(),
       $method_name,
+      self::getFormat()->getExtension(),
       self::getQueryString($query_options)
     );
   }
@@ -588,10 +629,11 @@ abstract class Base
   protected static function getElementPath($id, array $prefix_options = array(),
                                                 array $query_options = array())
   {
-    return sprintf('%s%s/%d.:extension:%s',
+    return sprintf('%s%s/%d.%s%s',
       self::getPrefix($prefix_options),
       self::getCollectionName(),
       $id,
+      self::getFormat()->getExtension(),
       self::getQueryString($query_options)
     );
   }
@@ -609,11 +651,12 @@ abstract class Base
                                                        array $prefix_options = array(),
                                                        array $query_options = array())
   {
-    return sprintf('%s%s/%d/%s.:extension:%s',
+    return sprintf('%s%s/%d/%s.%s%s',
       self::getPrefix($prefix_options),
       self::getCollectionName(),
       $id,
       $method_name,
+      self::getFormat()->getExtension(),
       self::getQueryString($query_options)
     );
   }
@@ -629,9 +672,10 @@ abstract class Base
   protected static function getNewElementPath(array $prefix_options = array(),
                                               array $query_options = array())
   {
-    return sprintf('%s%s/new.:extension:%s',
+    return sprintf('%s%s/new.%s%s',
       self::getPrefix($prefix_options),
       self::getCollectionName(),
+      self::getFormat()->getExtension(),
       self::getQueryString($query_options)
     );
   }
@@ -648,10 +692,11 @@ abstract class Base
                                                           array $prefix_options = array(),
                                                           array $query_options = array())
   {
-    return sprintf('%s%s/new/%s.:extension:%s',
+    return sprintf('%s%s/new/%s.%s%s',
       self::getPrefix($prefix_options),
       self::getCollectionName(),
       $method_name,
+      self::getFormat()->getExtension(),
       self::getQueryString($query_options)
     );
   }
@@ -665,14 +710,14 @@ abstract class Base
       if (null === $from)
       {
         $response = $connection->get(self::getCollectionPath($prefix_options, $query_options));
-        $decoded  = $response->getDecodedBody();
+        $decoded  = self::getFormat()->decode($response->getBody());
         $attrs    = $decoded[self::getCollectionName()];
       }
       elseif (false !== strpos($from, '/'))
       {
         $path     = sprintf('%s%s', $from, self::getQueryString($query_options));
         $response = $connection->get($path);
-        $decoded  = $response->getDecodedBody();
+        $decoded  = self::getFormat()->decode($response->getBody());
         $attrs    = $decoded[self::getCollectionName()];
       }
       else
@@ -700,7 +745,7 @@ abstract class Base
       {
         $path     = sprintf('%s%s', $from, self::getQueryString($query_options));
         $response = $connection->get($path);
-        $decoded  = $response->getDecodedBody();
+        $decoded  = self::getFormat()->decode($response->getBody());
         $attrs    = $decoded[self::getElementName()];
       }
       else
@@ -725,7 +770,7 @@ abstract class Base
       list($from, $prefix_options, $query_options) = self::extractOptions($args);
 
       $response = $connection->get(self::getElementPath($id, $prefix_options, $query_options));
-      $decoded  = $response->getDecodedBody();
+      $decoded  = self::getFormat()->decode($response->getBody());
       $attrs    = $decoded[self::getElementName()];
 
       return self::instantiateRecord($attrs, $prefix_options, $connection);

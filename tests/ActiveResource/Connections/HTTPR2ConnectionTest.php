@@ -69,7 +69,7 @@ class HTTPR2ConnectionTest extends PHPUnit_Framework_TestCase
       $adapter->addResponse('get', $mock_data['url'], $mock_data['body'], $mock_data['response']);
 
       $data[] = array(
-        $connection, $adapter, $mock_data['body'], $mock_data['decoded'], $mock_data['path'], $mock_data['code']
+        $connection, $adapter, $mock_data['body'], $mock_data['path'], $mock_data['code']
       );
     }
 
@@ -79,7 +79,7 @@ class HTTPR2ConnectionTest extends PHPUnit_Framework_TestCase
   /**
    * @dataProvider mockedGetConnectionProvider
    */
-  public function testGet(Connection $connection, MockAdapter $adapter, $body, $decoded, $path, $code)
+  public function testGet(Connection $connection, MockAdapter $adapter, $body, $path, $code)
   {
     $connection->setAdapter($adapter);
     $response = $connection->get($path);
@@ -87,9 +87,6 @@ class HTTPR2ConnectionTest extends PHPUnit_Framework_TestCase
     // Response test
     $this->assertEquals(trim($body),  $response->getBody(), 'Right response body');
     $this->assertEquals($code,        $response->getCode(), 'Right response status code');
-
-    // Decoded body test
-    $this->assertEquals($decoded, $response->getDecodedBody(), 'Right decoded body');
   }
 
   public function mockedHeadAndDeleteConnectionProvider()

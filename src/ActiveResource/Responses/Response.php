@@ -49,11 +49,4 @@ interface Response
    * @return  string  response body
    */
   public function getBody();
-
-  /**
-   * Returns decoded body of the response
-   *
-   * @return  string  response body
-   */
-  public function getDecodedBody();
 }

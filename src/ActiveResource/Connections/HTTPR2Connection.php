@@ -12,9 +12,6 @@ namespace ActiveResource\Connections;
 
 use ActiveResource\Responses\HTTPR2Response as Response;
 
-use ActiveResource\Formats\Format;
-use ActiveResource\Formats\XML as XMLFormat;
-
 use ActiveResource\Exceptions\ConnectionException;
 use ActiveResource\Exceptions\TimeoutException;
 use ActiveResource\Exceptions\SSLException;
@@ -46,7 +43,6 @@ class HTTPR2Connection implements Connection
   protected $auth_type = 'basic';
   protected $headers = array();
   protected $timeout;
-  protected $format;
   protected $adapter = 'socket';
 
   /**
@@ -55,7 +51,7 @@ class HTTPR2Connection implements Connection
    * @param   string                        $site   base site URL
    * @param   ActiveResource\Formats\Format $format formatter instance
    */
-  public function __construct($site, Format $format = null)
+  public function __construct($site)
   {
     if (null === $site || empty($site))
     {
@@ -63,14 +59,6 @@ class HTTPR2Connection implements Connection
     }
 
     $this->setSite($site);
-    if (null === $format)
-    {
-      $this->setFormat(new XMLFormat);
-    }
-    else
-    {
-      $this->setFormat($format);
-    }
   }
 
   /**
@@ -253,26 +241,6 @@ class HTTPR2Connection implements Connection
   }
 
   /**
-   * Returns connection request/response formatter
-   *
-   * @see     ActiveResource\Connections\Connection::getFormat()
-   */
-  public function getFormat()
-  {
-    return $this->format;
-  }
-
-  /**
-   * Sets connection request/response formatter
-   *
-   * @see     ActiveResource\Connections\Connection::setFormat()
-   */
-  public function setFormat(Format $format)
-  {
-    $this->format = $format;
-  }
-
-  /**
    * Sends GET request & returns formatted response object
    *
    * @see     ActiveResource\Connections\Connection::get()
@@ -313,9 +281,8 @@ class HTTPR2Connection implements Connection
    *
    * @see     ActiveResource\Connections\Connection::put()
    */
-  public function put($path, array $body = array(), array $headers = array())
+  public function put($path, $body, array $headers = array())
   {
-    $body = $this->format->encode($body);
     $response = $this->send('put', $path, $body, $headers);
 
     return $response;
@@ -326,9 +293,8 @@ class HTTPR2Connection implements Connection
    *
    * @see     ActiveResource\Connections\Connection::post()
    */
-  public function post($path, array $body = array(), array $headers = array())
+  public function post($path, $body, array $headers = array())
   {
-    $body = $this->format->encode($body);
     $response = $this->send('post', $path, $body, $headers);
 
     return $response;
@@ -479,9 +445,7 @@ class HTTPR2Connection implements Connection
   protected function prepareUrl($path)
   {
     $site = new \Net_URL2($this->getSite());
-    $site->setPath(
-      $this->getBasePath() . strtr($path, array(':extension:' => $this->format->getExtension()))
-    );
+    $site->setPath($this->getBasePath() . $path);
 
     return $site->getUrl();
   }
@@ -495,14 +459,7 @@ class HTTPR2Connection implements Connection
    */
   protected function prepareHeaders(array $headers = array())
   {
-    return array_merge(
-      array(
-        'accept'        => $this->format->getMimeType(),
-        'content-type'  => $this->format->getMimeType()
-      ),
-      $this->headers,
-      $headers
-    );
+    return array_merge($this->headers, $headers);
   }
 
   /**
@@ -515,8 +472,7 @@ class HTTPR2Connection implements Connection
   protected function prepareResponse(\HTTP_Request2_Response $response)
   {  
     $body     = trim($response->getBody());
-    $decoded  = strlen($body) ? $this->format->decode($body) : '';
-    $response = new Response($response, $decoded);
+    $response = new Response($response);
 
     return $response;
   }

@@ -121,20 +121,6 @@ interface Connection
   public function setTimeout($timeout);
 
   /**
-   * Returns connection request/response formatter
-   *
-   * @return  ActiveResource\Formats\Format         formatter instance
-   */
-  public function getFormat();
-
-  /**
-   * Sets connection request/response formatter
-   *
-   * @param   ActiveResource\Formats\Format $format formatter instance
-   */
-  public function setFormat(Format $format);
-
-  /**
    * Sends HEAD request & returns formatted response object
    *
    * @param   string  $path                     resource path
@@ -169,20 +155,20 @@ interface Connection
    *
    * @param   string  $path                     resource path
    * @param   array   $headers                  specific headers hash
-   * @param   array   $body                     request body
+   * @param   string  $body                     request body
    * 
    * @return  ActiveResource\Responses\Response response instance
    */
-  public function put($path, array $body = array(), array $headers = array());
+  public function put($path, $body, array $headers = array());
 
   /**
    * Sends POST request & returns formatted response object
    *
    * @param   string  $path                     resource path
    * @param   array   $headers                  specific headers hash
-   * @param   array   $body                     request body
+   * @param   string  $body                     request body
    * 
    * @return  ActiveResource\Responses\Response response instance
    */
-  public function post($path, array $body = array(), array $headers = array());
+  public function post($path, $body, array $headers = array());
 }

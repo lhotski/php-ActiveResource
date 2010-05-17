@@ -66,7 +66,7 @@ BODY
       array('user_id' => 14, 'username' => 'everzet', 'subfields' => array('sub_id' => 12)),
       array('user_id' => 5, 'username' => 'test-user', 'subfields' => array('sub_id' => 104)),
     ))
-    ,'path'     => '/projects.:extension:'
+    ,'path'     => '/projects.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/projects.xml'
     ,'code'     => 200
     ,'headers'  => array(
@@ -106,7 +106,7 @@ RESPONSE
 </project>
 BODY
     ,'decoded'  => array('project' => array('id' => 2, 'user_id' => 5, 'username' => 'test-user', 'subfields' => array('sub_id' => 104)))
-    ,'path'     => '/project/2.:extension:'
+    ,'path'     => '/project/2.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 200
     ,'headers'  => array(
@@ -127,7 +127,7 @@ Status: 201
 RESPONSE
     ,'body'     => null
     ,'decoded'  => null
-    ,'path'     => '/project/2.:extension:'
+    ,'path'     => '/project/2.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 201
     ,'headers'  => array(
@@ -160,7 +160,7 @@ RESPONSE
 </project>
 BODY
     ,'body'     => array('project' => array('id' => 2, 'user_id' => 5, 'username' => 'test-user', 'subfields' => array('sub_id' => 104)))
-    ,'path'     => '/project/2.:extension:'
+    ,'path'     => '/project/2.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 201
     ,'headers'  => array(
@@ -203,7 +203,7 @@ BODY
       array('id' => 2, 'user_id' => 5, 'username' => 'test-user', 'subfields' => array('sub_id' => 104)),
       array('id' => 5, 'user_id' => 1, 'username' => 'test-user', 'subfields' => array('sub_id' => 4)),
     ))
-    ,'path'     => '/project/2/subprojects/5.:extension:'
+    ,'path'     => '/project/2/subprojects/5.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2/subprojects/5.xml'
     ,'code'     => 203
     ,'headers'  => array(
@@ -225,7 +225,7 @@ Content-Type: application/xml
 Status: 203
 
 RESPONSE
-    ,'path'     => '/project/2.:extension:'
+    ,'path'     => '/project/2.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 203
     ,'headers'  => array(
@@ -244,7 +244,7 @@ Content-Type: application/xml
 Status: 201
 
 RESPONSE
-    ,'path'     => '/projects.:extension:'
+    ,'path'     => '/projects.xml'
     ,'url'      => MOCK_DATA_URL_PREFIX . '/projects.xml'
     ,'code'     => 201
     ,'headers'  => array(

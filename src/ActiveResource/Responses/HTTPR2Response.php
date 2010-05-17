@@ -25,7 +25,6 @@ class HTTPR2Response implements Response
   protected $code;
   protected $headers;
   protected $body;
-  protected $decoded;
 
   /**
    * Response constructor
@@ -33,12 +32,11 @@ class HTTPR2Response implements Response
    * @param   HTTP_Request2_Response  $response HTTP_Request2 response object
    * @param   string                  $decoded  decoded response body
    */
-  public function __construct(\HTTP_Request2_Response $response, $decoded)
+  public function __construct(\HTTP_Request2_Response $response)
   {
     $this->code     = $response->getStatus();
     $this->headers  = $response->getHeader();
     $this->body     = $response->getBody();
-    $this->decoded  = $decoded;
   }
 
   /**
@@ -71,16 +69,6 @@ class HTTPR2Response implements Response
   public function getHeaders()
   {
     return $this->headers;
-  }
-
-  /**
-   * Returns decoded body of the response
-   *
-   * @see     ActiveResource\Responses\Response::getDecodedBody()
-   */
-  public function getDecodedBody()
-  {
-    return $this->decoded;
   }
 
   /**
