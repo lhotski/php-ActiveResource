@@ -818,7 +818,12 @@ abstract class Base
     $prepared_attrs = array();
     $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
-    $response = $this->connection->post($this->getCollectionPath(), $prepared_attrs);
+	$response = $this->connection->post($this->getCollectionPath(),
+		self::getFormat()->encode($prepared_attrs), array(
+			'accept'        => self::getFormat()->getMimeType(),
+			'content-type'  => self::getFormat()->getMimeType()
+		)
+	);
 
     if (201 == $response->getCode())
     {
@@ -1005,7 +1010,7 @@ abstract class Base
     if ('0' != $response->getHeader('Content-Length') && 0 < strlen(trim($response->getBody())))
     {
       $this->load(
-        $this->connection->getFormat()->decode($response->getBody())
+        self::getFormat()->decode($response->getBody())
       );
     }
   }
