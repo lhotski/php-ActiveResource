@@ -1009,9 +1009,8 @@ abstract class Base
   {
     if ('0' != $response->getHeader('Content-Length') && 0 < strlen(trim($response->getBody())))
     {
-      $this->load(
-        self::getFormat()->decode($response->getBody())
-      );
+      $decoded = self::getFormat()->decode($response->getBody());
+      $this->load($decoded[self::getElementName()]);
     }
   }
 }
