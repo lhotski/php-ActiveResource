@@ -23,6 +23,7 @@ use ActiveResource\Exceptions\ForbiddenAccess;
 use ActiveResource\Exceptions\ResourceNotFound;
 use ActiveResource\Exceptions\ResourceConflict;
 use ActiveResource\Exceptions\ResourceGone;
+use ActiveResource\Exceptions\ResourceInvalid;
 use ActiveResource\Exceptions\ServerError;
 use ActiveResource\Exceptions\MethodNotAllowed;
 
