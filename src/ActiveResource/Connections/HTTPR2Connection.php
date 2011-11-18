@@ -360,6 +360,9 @@ class HTTPR2Connection implements Connection
           case 404:
             throw new ResourceNotFound($response);
             break;
+          case 422:
+            throw new ResourceInvalid($response);
+            break;
           case 500:
           case 501:
           case 502:
