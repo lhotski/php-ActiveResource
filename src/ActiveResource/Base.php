@@ -13,9 +13,10 @@ namespace ActiveResource;
 use ActiveResource\Connections\Connection;
 use ActiveResource\Schemas\Schema;
 use ActiveResource\Schemas\AttrsSchema;
-use ActiveResource\Responses\Response;
+use ActiveResource\Responses\HTTPR2Response as Response;
 use ActiveResource\Ext\Inflector;
 use ActiveResource\Formats\Format;
+use ActiveResource\Errors\RemoteErrors;
 
 /**
  * Base implements base REST model abstraction class.
@@ -31,6 +32,7 @@ abstract class Base
   protected $connection;
   protected $schema;
   protected $prefix_options = array();
+  protected $errors;
 
   /**
    * Constructs new object
@@ -158,6 +160,31 @@ abstract class Base
   public static function init(array $attrs, Connection $connection)
   {
     return self::instantiateRecord($attrs, array(), $connection);
+  }
+
+
+  /**
+   * Return remote errors
+   *
+   * @return ActiveResource\Errors\RemoteErrors
+   */
+  public function getErrors()
+  {
+    if (!$this->errors)
+    {
+      $this->errors = $this->initErrors();
+    }
+    return $this->errors;
+  }
+
+  /**
+   * Init errors holder instance
+   *
+   * @return ActiveResource\Errors\RemoteErrors
+   */
+  protected function initErrors()
+  {
+    return new RemoteErrors(get_class());
   }
 
   /**
@@ -339,7 +366,15 @@ abstract class Base
    */
   public function save()
   {
-    return $this->isNew() ? $this->create() : $this->update();
+    try
+    {
+      return $this->isNew() ? $this->create() : $this->update();
+    }
+    catch (\ActiveResource\Exceptions\ResourceInvalid $e)
+    {
+      $this->loadRemoteErrors(new Response($e->getResponse()));
+      return false;
+    }
   }
 
   /**
@@ -818,12 +853,12 @@ abstract class Base
     $prepared_attrs = array();
     $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
-	$response = $this->connection->post($this->getCollectionPath(),
-		self::getFormat()->encode($prepared_attrs), array(
-			'accept'        => self::getFormat()->getMimeType(),
-			'content-type'  => self::getFormat()->getMimeType()
-		)
-	);
+    $response = $this->connection->post($this->getCollectionPath(),
+      self::getFormat()->encode($prepared_attrs), array(
+        'accept'        => self::getFormat()->getMimeType(),
+        'content-type'  => self::getFormat()->getMimeType()
+      )
+    );
 
     if (201 == $response->getCode())
     {
@@ -1010,7 +1045,32 @@ abstract class Base
     if ('0' != $response->getHeader('Content-Length') && 0 < strlen(trim($response->getBody())))
     {
       $decoded = self::getFormat()->decode($response->getBody());
-      $this->load($decoded[self::getElementName()]);
+      if (isset($decoded[self::getElementName()]))
+      {
+        $this->load($decoded[self::getElementName()]);
+      }
     }
   }
+
+  /**
+   * Loads remote errors from response
+   *
+   * @param ActiveResource\Responses\Response $response response object
+   */
+  protected function loadRemoteErrors(Response $response)
+  {
+    $this->errors = $this->initErrors();
+
+    switch(self::getFormat()->getExtension())
+    {
+      case 'xml':
+      {
+        $this->errors->loadFromXML($response->getBody());
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
 }

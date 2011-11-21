@@ -1010,5 +1010,41 @@ RESPONSE
 
     $this->assertEquals($return, Person::collectionHead($method, $params, $connection));
   }
+
+  /**
+   * @dataProvider loadRemoteErrorsDataProvider
+   */
+  public function testLoadRemoteErrors($response, $url, $return)
+  {
+      $connection = $this->getMockedConnection('post', $url, null, $response);
+
+      $todo = new TodoList(array(), $connection);
+      $this->assertFalse($todo->save());
+      $this->assertEquals($return, $todo->getErrors()->getFullMessages());
+  }
+
+  public function loadRemoteErrorsDataProvider()
+  {
+    return array(
+      array(
+        <<<RESPONSE
+HTTP/1.1 422 Unprocessable Entity
+Server: nginx/0.8.33
+Date: Wed, 21 Apr 2010 10:32:14 GMT
+Content-Type: application/xml; charset=utf-8
+
+<errors>
+    <error>Name cannot be blank</error>
+    <error>User is not a number</error>
+</errors>
+RESPONSE
+        ,BASE_URL . '/todo_lists.xml',
+        array(
+          'Name cannot be blank',
+          'User is not a number',
+        ),
+      ),
+    );
+  }
 }
 

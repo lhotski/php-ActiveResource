@@ -205,4 +205,20 @@ class Inflector
 
       return $word;
     }
+
+    /**
+     * Return human-readable string from lower case and underscored string
+     *
+     * @param string $lowerCaseAndUnderscoredWord
+     *
+     * @return string Humanized string
+     */
+    public static function humanize($lowerCaseAndUnderscoredWord)
+    {
+      $replace = ucwords(str_replace('_', ' ',
+        preg_replace('/_id$/', '', $lowerCaseAndUnderscoredWord)));
+
+      return $replace;
+    }
+
 }
