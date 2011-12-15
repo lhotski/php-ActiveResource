@@ -773,7 +773,10 @@ abstract class Base
       {
         $response = $connection->get(self::getCollectionPath($prefix_options, $query_options));
         $decoded  = self::getFormat()->decode($response->getBody());
-        $attrs    = $decoded[self::getCollectionName()];
+        $attrs    = (isset($decoded[self::getCollectionName()])
+                      && is_array($decoded[self::getCollectionName()]))
+                        ? $decoded[self::getCollectionName()]
+                        : array();
       }
       elseif (false !== strpos($from, '/'))
       {
@@ -881,7 +884,12 @@ abstract class Base
     $prepared_attrs = array();
     $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
-    $response = $this->connection->put($this->getElementPath($this->getId()), $prepared_attrs);
+    $response = $this->connection->put($this->getElementPath($this->getId()),
+        self::getFormat()->encode($prepared_attrs), array(
+            'accept' => self::getFormat()->getMimeType(),
+            'content-type' => self::getFormat()->getMimeType()
+        )
+    );
     $this->loadAttributesFromResponse($response);
 
     return 204 == $response->getCode() || 200 == $response->getCode();
@@ -921,10 +929,44 @@ abstract class Base
 
     foreach ($options as $name => $value)
     {
-      $query_options[] = sprintf('%s=%s', $name, $value);
+      if (is_array($value))
+      {
+        $query_options = array_merge($query_options,
+          self::buildQueryArray($name, $value));
+      }
+      else
+      {
+        $query_options[] = sprintf('%s=%s', $name, urlencode($value));
+      }
     }
 
     return !empty($query_options) ? '?' . implode('&', $query_options) : '';
+  }
+
+  /**
+   * Recursive build query parts from array
+   *
+   * @param   string    $name       argument name
+   * @param   array     $options    argument value
+   *
+   * @return  array                 array of query pairs
+   */
+  protected static function buildQueryArray($name, array $options)
+  {
+    $pairs = array();
+    foreach($options as $key => $value)
+    {
+      if (is_array($value))
+      {
+        $pairs = array_merge($pairs, self::buildQueryArray($key, $value));
+      }
+      else
+      {
+        $pairs[] = sprintf("%s[%s]=%s", $name,
+          is_int($key) ? '' : $key, urlencode($value));
+      }
+    }
+    return $pairs;
   }
 
   /**
@@ -1042,7 +1084,9 @@ abstract class Base
    */
   private function loadAttributesFromResponse(Response $response)
   {
-    if ('0' != $response->getHeader('Content-Length') && 0 < strlen(trim($response->getBody())))
+    if (!in_array($response->getCode(), array(204, 304))
+      && '0' != $response->getHeader('Content-Length')
+      && 0 < strlen(trim($response->getBody())))
     {
       $decoded = self::getFormat()->decode($response->getBody());
       if (isset($decoded[self::getElementName()]))
