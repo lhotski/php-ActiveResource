@@ -14,3 +14,5 @@ require_once __DIR__ . '/../UniversalClassLoader.php';
 $loader = new UniversalClassLoader();
 $loader->registerNamespace('ActiveResource', realpath(__DIR__ . '/../src'));
 $loader->register();
+
+date_default_timezone_set('Europe/Minsk');
