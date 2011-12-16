@@ -936,7 +936,7 @@ abstract class Base
       }
       else
       {
-        $query_options[] = sprintf('%s=%s', $name, urlencode($value));
+        $query_options[] = urlencode($name) . '=' . urlencode($value);
       }
     }
 
@@ -962,8 +962,8 @@ abstract class Base
       }
       else
       {
-        $pairs[] = sprintf("%s[%s]=%s", $name,
-          is_int($key) ? '' : $key, urlencode($value));
+        $pairs[] = urlencode($name . '[' . (is_int($key) ? '' : $key) . ']')
+          . '=' . urlencode($value);
       }
     }
     return $pairs;
