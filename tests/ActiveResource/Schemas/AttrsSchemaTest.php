@@ -8,8 +8,6 @@
  * file that was distributed with this source code.
  */
 
-require_once __DIR__ . '/../../bootstrap.php';
-
 use ActiveResource\Schemas\AttrsSchema;
 use ActiveResource\Ext\Inflector;
 

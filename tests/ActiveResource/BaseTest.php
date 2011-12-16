@@ -8,16 +8,15 @@
  * file that was distributed with this source code.
  */
 
-require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/Connections/HTTP_Request2_Adapter_UrlMock.php';
+require_once __DIR__ . '/Person.php';
+require_once __DIR__ . '/TodoList.php';
 
 use ActiveResource\Connections\HTTPR2Connection as Connection;
 use HTTP_Request2_Adapter_UrlMock as MockAdapter;
 
 define('BASE_URL', 'https://some.rest.site.com/base/path');
 
-class TodoList extends ActiveResource\Base{}
-class Person extends ActiveResource\Base{}
 
 class BaseTest extends PHPUnit_Framework_TestCase
 {
@@ -749,7 +748,7 @@ RESPONSE
   </person>
 </request>
 BODY
-        ,BASE_URL . '/people/3/poll.xml?filter=*&sex=man'
+        ,BASE_URL . '/people/3/poll.xml?filter=%2A&sex=man'
         ,3
         ,'poll'
         ,array('filter' => '*', 'sex' => 'man')
@@ -837,7 +836,7 @@ RESPONSE
   </person>
 </request>
 BODY
-        ,BASE_URL . '/people/poll.xml?filter=*&sex=man'
+        ,BASE_URL . '/people/poll.xml?filter=%2A&sex=man'
         ,'poll'
         ,array('filter' => '*', 'sex' => 'man')
         ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
@@ -905,7 +904,7 @@ Content-Type: application/xml; charset=utf-8
 Status: 200
 
 RESPONSE
-        ,BASE_URL . '/people/3/fire.xml?filter=*&sex=man'
+        ,BASE_URL . '/people/3/fire.xml?filter=%2A&sex=man'
         ,3
         ,'fire'
         ,array('filter' => '*', 'sex' => 'man')
@@ -967,7 +966,7 @@ Content-Type: application/xml; charset=utf-8
 Status: 200
 
 RESPONSE
-        ,BASE_URL . '/people/fire.xml?filter=*&sex=man'
+        ,BASE_URL . '/people/fire.xml?filter=%2A&sex=man'
         ,'fire'
         ,array('filter' => '*', 'sex' => 'man')
         ,true

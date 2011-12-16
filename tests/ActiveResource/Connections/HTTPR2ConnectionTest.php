@@ -8,7 +8,6 @@
  * file that was distributed with this source code.
  */
 
-require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/HTTP_Request2_Adapter_UrlMock.php';
 require_once __DIR__ . '/ConnectionMockData.php';
 

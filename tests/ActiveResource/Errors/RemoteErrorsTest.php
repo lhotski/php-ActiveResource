@@ -1,10 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . "/../TodoList.php";
 
 use ActiveResource\Errors\RemoteErrors;
-
-class TodoList extends ActiveResource\Base{}
 
 class RemoteErrorsTest extends PHPUnit_Framework_TestCase
 {
