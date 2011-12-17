@@ -64,11 +64,10 @@ class XML implements Format
       $xml_name = $this->endash($xml_name);
 
       // Big numbers detect stub for x32 architecture
-      // Restriction: float numbers greater than PHP_INT_MAX and without digits
-      // after point will be encoded as integer
-      if (is_float($value) && $value > PHP_INT_MAX && preg_match("/^\d+$/", $value))
+      // Restriction: all numbers greater or equal PHP_INT_MAX will be encoded as integer
+      if (is_float($value) && $value >= PHP_INT_MAX)
       {
-        $node = sprintf('<%s type="integer">%s</%s>',
+        $node = sprintf('<%s type="integer">%0.0f</%s>',
           $xml_name, $value, $xml_name
         );
       }
@@ -139,7 +138,7 @@ class XML implements Format
       switch ($node['type'])
       {
         case 'integer':
-          $data[$name] = floatval($node) > PHP_INT_MAX ? floatval($node) : intval($node);
+          $data[$name] = floatval($node) >= PHP_INT_MAX ? floatval($node) : intval($node);
           break;
         case 'boolean':
           $data[$name] = false !== stripos($node, 'true');
