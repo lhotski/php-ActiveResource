@@ -100,8 +100,7 @@ class XMLTest extends PHPUnit_Framework_TestCase
   {
     return array(
       array(
-        <<<XML
-<topic>
+'<topic>
   <title>The First Topic</title>
   <author-name>David</author-name>
   <id type="integer">1</id>
@@ -114,9 +113,11 @@ class XMLTest extends PHPUnit_Framework_TestCase
   <parent-id/>
   <ad-revenue type="float">1.5</ad-revenue>
   <optimum-viewing-angle type="float">135</optimum-viewing-angle>
+  <dream-account type="float">' . PHP_INT_MAX . '</dream-account>
+  <debt-per-life type="integer">' . (PHP_INT_MAX + 1) . '</debt-per-life>
   <resident>yes</resident>
-</topic>
-XML
+</topic>'
+
         ,array(
           'title' => 'The First Topic',
           'author_name' => 'David',
@@ -130,6 +131,8 @@ XML
           'parent_id' => null,
           'ad_revenue' => 1.50,
           'optimum_viewing_angle' => 135.0,
+          'dream_account' => floatval(PHP_INT_MAX),
+          'debt_per_life' => floatval(PHP_INT_MAX + 1),
           'resident' => 'yes'
         )
       ),

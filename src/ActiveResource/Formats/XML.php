@@ -63,7 +63,16 @@ class XML implements Format
       $xml_name = false === $array_node ? $name : Inflector::singularize($array_node);
       $xml_name = $this->endash($xml_name);
 
-      if (is_int($value))
+      // Big numbers detect stub for x32 architecture
+      // Restriction: float numbers greater than PHP_INT_MAX and without digits
+      // after point will be encoded as integer
+      if (is_float($value) && $value > PHP_INT_MAX && preg_match("/^\d+$/", $value))
+      {
+        $node = sprintf('<%s type="integer">%s</%s>',
+          $xml_name, $value, $xml_name
+        );
+      }
+      elseif (is_int($value))
       {
         $node = sprintf('<%s type="integer">%d</%s>',
           $xml_name, $value, $xml_name
@@ -130,7 +139,7 @@ class XML implements Format
       switch ($node['type'])
       {
         case 'integer':
-          $data[$name] = intval($node);
+          $data[$name] = floatval($node) > PHP_INT_MAX ? floatval($node) : intval($node);
           break;
         case 'boolean':
           $data[$name] = false !== stripos($node, 'true');
