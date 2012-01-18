@@ -150,13 +150,13 @@ class AttrsSchema implements Schema
     {
       return 'array';
     }
-    if (false !== strtotime($value))
-    {
-      return 'datetime';
-    }
     if (is_int($value))
     {
       return 'integer';
+    }
+    if (false !== strtotime($value))
+    {
+      return 'datetime';
     }
     elseif (is_object($value))
     {

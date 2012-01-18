@@ -147,6 +147,7 @@ class AttrsSchemaTest extends PHPUnit_Framework_TestCase
       array('age', true, true),
       array('money', '12.5', '12.5'),
       array('money', 3, 3),
+      array('id', 1987010, 1987010),
       array('knowledges', array('php' => 5, 'java' => 4), array('php' => 5, 'java' => 4)),
     );
   }
