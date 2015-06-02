@@ -13,10 +13,10 @@ namespace ActiveResource;
 use ActiveResource\Connections\Connection;
 use ActiveResource\Schemas\Schema;
 use ActiveResource\Schemas\AttrsSchema;
-use ActiveResource\Responses\HTTPR2Response as Response;
 use ActiveResource\Ext\Inflector;
 use ActiveResource\Formats\Format;
 use ActiveResource\Errors\RemoteErrors;
+use Psr\Http\Message\ResponseInterface as Response;
 
 /**
  * Base implements base REST model abstraction class.
@@ -27,31 +27,50 @@ use ActiveResource\Errors\RemoteErrors;
  * @version    1.0.0
  */
 abstract class Base
-{  
-  protected $id;
-  protected $connection;
-  protected $schema;
-  protected $prefix_options = array();
-  protected $errors;
+{
+    /**
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @var Connection
+     */
+    protected $connection;
+
+    /**
+     * @var Schema
+     */
+    protected $schema;
+
+    /**
+     * @var array
+     */
+    protected $prefix_options = array();
+
+    /**
+     * @var RemoteErrors
+     */
+    protected $errors;
 
   /**
    * Constructs new object
    *
-   * @param   array                                   $attrs        object attributes
-   * @param   ActiveResource\Connections\Connection   $connection   connection instance
+   * @param   array  $attributes        object attributes
+   * @param   Connection   $connection   connection instance
    */
-  public function __construct(array $attrs, Connection $connection)
+  public function __construct(array $attributes, Connection $connection)
   {
     $this->setConnection($connection);
     $this->setSchema(self::initSchema());
 
-    $this->load($attrs);
+    $this->load($attributes);
   }
 
   /**
    * Sets current resource connection manager
    *
-   * @param   ActiveResource\Connections\Connection   $connection   conneciton instance
+   * @param   Connection   $connection   conneciton instance
    */
   public function setConnection(Connection $connection)
   {
@@ -61,7 +80,7 @@ abstract class Base
   /**
    * Returns current resource connection manager
    *
-   * @return  ActiveResource\Connections\Connection
+   * @return  Connection
    */
   public function getConnection()
   {
@@ -71,7 +90,7 @@ abstract class Base
   /**
    * Sets current resource attribute schema
    *
-   * @param   ActiveResource\Schemas\Schema           $schema       schema instance
+   * @param   Schema           $schema       schema instance
    */
   public function setSchema(Schema $schema)
   {
@@ -81,7 +100,7 @@ abstract class Base
   /**
    * Returns current resource schema
    *
-   * @return  ActiveResource\Schemas\Schema
+   * @return  Schema
    */
   public function getSchema()
   {
@@ -91,7 +110,7 @@ abstract class Base
   /**
    * Returns new scheme for resource (override this method to set your custom schema for resource)
    *
-   * @return  ActiveResource\Schemas\Schema
+   * @return  Schema
    */
   protected static function initSchema()
   {
@@ -113,7 +132,7 @@ abstract class Base
   /**
    * Returns new Formatter instance
    *
-   * @return  ActiveResource\Formats\Format formatter instance
+   * @return  Format formatter instance
    */
   protected static function getFormat()
   {
@@ -130,7 +149,7 @@ abstract class Base
   /**
    * Creates new Formatter instance
    *
-   * @return  ActiveResource\Formats\Format formatter instance
+   * @return  Format formatter instance
    */
   protected static function initFormat()
   {
@@ -142,31 +161,31 @@ abstract class Base
   /**
    * Returns Formatter class name
    *
-   * @return  string                        formatter class
+   * @return string formatter class
    */
   protected static function formatClass()
   {
-    return 'ActiveResource\\Formats\\XML';
+    return 'ActiveResource\\Formats\\Json';
   }
 
   /**
    * Constructs & returns newly created object (*new* method in Ruby AR)
    *
-   * @param   array                                   $attrs        object attributes
-   * @param   ActiveResource\Connections\Connection   $connection   connection instance
+   * @param   array $attributes        object attributes
+   * @param   Connection   $connection   connection instance
    * 
-   * @return  ActiveResource\Base
+   * @return  Base
    */
-  public static function init(array $attrs, Connection $connection)
+  public static function init(array $attributes, Connection $connection)
   {
-    return self::instantiateRecord($attrs, array(), $connection);
+    return self::instantiateRecord($attributes, array(), $connection);
   }
 
 
   /**
    * Return remote errors
    *
-   * @return ActiveResource\Errors\RemoteErrors
+   * @return RemoteErrors
    */
   public function getErrors()
   {
@@ -180,7 +199,7 @@ abstract class Base
   /**
    * Init errors holder instance
    *
-   * @return ActiveResource\Errors\RemoteErrors
+   * @return RemoteErrors
    */
   protected function initErrors()
   {
@@ -210,17 +229,17 @@ abstract class Base
   /**
    * Populate object values with specified attributes
    *
-   * @param   array $attrs  object attributes
+   * @param   array $attributes  object attributes
    */
-  public function load(array $attrs)
+  public function load(array $attributes)
   {
-    if (isset($attrs['id']))
+    if (isset($attributes['id']))
     {
-      $this->id = $attrs['id'];
-      unset($attrs['id']);
+      $this->id = $attributes['id'];
+      unset($attributes['id']);
     }
 
-    $this->schema->setValues($attrs);
+    $this->schema->setValues($attributes);
   }
 
   /**
@@ -294,7 +313,7 @@ abstract class Base
    * Checks whether object exists on remote service
    *
    * @param   integer                                 $id           object id
-   * @param   ActiveResource\Connections\Connection   $connection   remote service connection
+   * @param   Connection   $connection   remote service connection
    * 
    * @return  boolean                                               true if exists, false otherwise
    */
@@ -308,7 +327,7 @@ abstract class Base
       {
         $response = $connection->head(self::getElementPath($id, $prefix_options, $query_options));
 
-        return 200 == $response->getCode();
+        return 200 == $response->getStatusCode();
       }
       catch (\ActiveResource\Exceptions\ResourceGone $e)
       {
@@ -324,9 +343,9 @@ abstract class Base
   /**
    * Sends new request to remote service & create new object with fictive data
    *
-   * @param   ActiveResource\Connections\Connection  $connection   remote service connection
+   * @param   Connection  $connection   remote service connection
    * 
-   * @return  ActiveResource\Base                                  new object
+   * @return  Base                                  new object
    */
   public static function build(array $prefix_options, array $query_options, Connection $connection)
   {
@@ -372,7 +391,8 @@ abstract class Base
     }
     catch (\ActiveResource\Exceptions\ResourceInvalid $e)
     {
-      $this->loadRemoteErrors(new Response($e->getResponse()));
+      //todo
+      //$this->loadRemoteErrors(new Response($e->getResponse()));
       return false;
     }
   }
@@ -386,7 +406,7 @@ abstract class Base
   {
     $response = $this->connection->delete(self::getElementPath($this->getId()));
 
-    return 200 == $response->getCode();
+    return 200 == $response->getStatusCode();
   }
 
   /**
@@ -442,9 +462,9 @@ abstract class Base
    * With any other scope, find returns nil when no data is returned.
    *
    * @param   integer|string|array                  $criteria   criteria of the query
-   * @param   ActiveResource\Connections\Connection $connection remote resource connection
+   * @param   Connection $connection remote resource connection
    * 
-   * @return  array|ActiveResource\Base                         single object or array of objects
+   * @return  array|Base                         single object or array of objects
    */
   public static function find($criteria, Connection $connection)
   {
@@ -530,7 +550,7 @@ abstract class Base
       );
     }
 
-    return 201 === $response->getCode();
+    return 201 === $response->getStatusCode();
   }
 
   public static function collectionPost($method_name, array $params = array(),
@@ -547,7 +567,7 @@ abstract class Base
       )
     );
 
-    return 201 === $response->getCode();
+    return 201 === $response->getStatusCode();
   }
 
   public function elementPut($method_name, array $params = array(), array $body = array())
@@ -565,7 +585,7 @@ abstract class Base
       )
     );
 
-    return 204 === $response->getCode() || 200 === $response->getCode();
+    return 204 === $response->getStatusCode() || 200 === $response->getStatusCode();
   }
 
   public static function collectionPut($method_name, array $params = array(),
@@ -582,7 +602,7 @@ abstract class Base
       )
     );
 
-    return 204 === $response->getCode() || 200 === $response->getCode();
+    return 204 === $response->getStatusCode() || 200 === $response->getStatusCode();
   }
 
   public function elementDelete($method_name, array $params = array())
@@ -596,7 +616,7 @@ abstract class Base
       array('accept' => self::getFormat()->getMimeType())
     );
 
-    return 200 === $response->getCode();
+    return 200 === $response->getStatusCode();
   }
 
   public static function collectionDelete($method_name, array $params = array(),
@@ -609,7 +629,7 @@ abstract class Base
       array('accept' => self::getFormat()->getMimeType())
     );
 
-    return 200 === $response->getCode();
+    return 200 === $response->getStatusCode();
   }
 
   public function elementHead($method_name, array $params = array())
@@ -623,7 +643,7 @@ abstract class Base
       )
     );
 
-    return 200 === $response->getCode();
+    return 200 === $response->getStatusCode();
   }
 
   public static function collectionHead($method_name, array $params = array(),
@@ -636,7 +656,7 @@ abstract class Base
       array('accept' => self::getFormat()->getMimeType())
     );
 
-    return 200 === $response->getCode();
+    return 200 === $response->getStatusCode();
   }
 
   /**
@@ -863,7 +883,7 @@ abstract class Base
       )
     );
 
-    if (201 == $response->getCode())
+    if (201 == $response->getStatusCode())
     {
       $this->id = $this->getIdFromResponse($response);
       $this->loadAttributesFromResponse($response);
@@ -892,7 +912,7 @@ abstract class Base
     );
     $this->loadAttributesFromResponse($response);
 
-    return 204 == $response->getCode() || 200 == $response->getCode();
+    return 204 == $response->getStatusCode() || 200 == $response->getStatusCode();
   }
 
 
@@ -974,9 +994,9 @@ abstract class Base
    *
    * @param   array                                 $attrs              attributes
    * @param   array                                 $prefix_options     prefix options for object
-   * @param   ActiveResource\Connections\Connection $connection         remote service connection
+   * @param   Connection $connection         remote service connection
    * 
-   * @return  ActiveResource\Base                                       new resource instance
+   * @return  Base                                       new resource instance
    */
   protected static function instantiateRecord(array $attrs,
                                               array $prefix_options = array(),
@@ -993,7 +1013,7 @@ abstract class Base
    *
    * @param   array                                 $attrs_list         array of objects attrbiutes
    * @param   array                                 $prefix_options     prefix options for objects
-   * @param   ActiveResource\Connections\Connection $connection         remote service connection
+   * @param   Connection $connection         remote service connection
    * 
    * @return  array                                                     array of Base objects
    */
@@ -1066,7 +1086,7 @@ abstract class Base
   /**
    * Takes a response from a typical create post and pulls the ID out
    *
-   * @param   ActiveResource\Responses\Response   $response   response object
+   * @param   Response   $response   response object
    * 
    * @return  integer                                         id of the newly created resource
    */
@@ -1080,11 +1100,11 @@ abstract class Base
   /**
    * Loads resource attributes from response
    *
-   * @param   ActiveResource\Responses\Response   $response   response object
+   * @param   Response   $response   response object
    */
   private function loadAttributesFromResponse(Response $response)
   {
-    if (!in_array($response->getCode(), array(204, 304))
+    if (!in_array($response->getStatusCode(), array(204, 304))
       && '0' != $response->getHeader('Content-Length')
       && 0 < strlen(trim($response->getBody())))
     {
@@ -1099,7 +1119,7 @@ abstract class Base
   /**
    * Loads remote errors from response
    *
-   * @param ActiveResource\Responses\Response $response response object
+   * @param Response $response response object
    */
   protected function loadRemoteErrors(Response $response)
   {

@@ -8,9 +8,15 @@ class ConnectionException extends \Exception
 
   public function __construct($response, $message = null)
   {  
-    parent::__construct($message);
-
-    $this->response = $response;
+      if ($response instanceof \Exception) {
+          /**
+           * @var \Exception $response
+           */
+          parent::__construct($response->getMessage(), $response->getCode(), $response);
+      } else {
+          parent::__construct($message);
+          $this->response = $response;
+      }
   }
 
   public function getResponse()

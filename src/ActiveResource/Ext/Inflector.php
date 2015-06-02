@@ -29,7 +29,8 @@ class Inflector
      */
     public static function isHash(array $value)
     {
-      return !is_int(end(array_keys($value)));
+        $keys=array_keys($value);
+        return !is_int(end($keys));
     }
 
     /**
@@ -41,7 +42,8 @@ class Inflector
      */
     public static function underscoreClassName($class)
     {
-      return self::underscore(end(explode('\\', $class)));
+        $arr=explode('\\', $class);
+      return self::underscore(end($arr));
     }
 
     /**

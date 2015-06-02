@@ -8,12 +8,10 @@
  * file that was distributed with this source code.
  */
 
-require_once __DIR__ . '/Connections/HTTP_Request2_Adapter_UrlMock.php';
-require_once __DIR__ . '/Person.php';
-require_once __DIR__ . '/TodoList.php';
+require_once 'Person.php';
+require_once 'TodoList.php';
 
-use ActiveResource\Connections\HTTPR2Connection as Connection;
-use HTTP_Request2_Adapter_UrlMock as MockAdapter;
+use ActiveResource\Connections\GuzzleConnection as Connection;
 
 define('BASE_URL', 'https://some.rest.site.com/base/path');
 
@@ -27,12 +25,19 @@ class BaseTest extends PHPUnit_Framework_TestCase
 
   private function getMockedConnection($method, $url, $body, $response)
   {
-    $connection = $this->getConnection();
-    $adapter = new MockAdapter;
-    $adapter->addResponse($method, $url, $body, $response);
-    $connection->setAdapter($adapter);
+      $connection = new Connection($url);
+      $mockedClient = $this->getMock('GuzzleHttp\Client');
+      $connection->setClient($mockedClient);
 
-    return $connection;
+      $response = (new GuzzleHttp\Psr7\Response(200, $body));
+
+      $mockedClient
+          ->expects($this->once())
+          ->method('__call')
+          ->with('get')
+          ->will($this->returnValue($response));
+
+      return $connection;
   }
 
   public function constructorDataProvider()

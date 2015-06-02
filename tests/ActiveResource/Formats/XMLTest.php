@@ -13,6 +13,11 @@ use ActiveResource\Ext\Inflector;
 
 class XMLTest extends PHPUnit_Framework_TestCase
 {
+
+    public function setUp() {
+        date_default_timezone_set('Europe/Minsk');
+    }
+
   public function testInfoGetters()
   {
     $format = new XMLFormat;
@@ -221,6 +226,7 @@ XML
     $format = new XMLFormat;
     $root_name = Inflector::isHash($data) ? 'topic' : 'topics';
 
-    $this->assertEquals($xml, $format->encode(array($root_name => $data)), 'Correctly encoded');
+      $result=str_replace("\n","\r\n",$format->encode(array($root_name => $data)));
+    $this->assertEquals($xml, $result, 'Correctly encoded');
   }
 }
