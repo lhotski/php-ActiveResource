@@ -281,12 +281,56 @@ class GuzzleConnection implements Connection {
                     ]
                 ]
             );
-        } catch (\GuzzleHttp\Exception\GuzzleException $ex) {
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            $response = $ex->getResponse();
             switch ($ex->getCode()) {
-                case 4004:
-                    throw new \ActiveResource\Exceptions\ResourceNotFound($ex);
+                case 300:
+                case 301:
+                case 302:
+                case 303:
+                case 304:
+                case 305:
+                case 307:
+                    throw new \ActiveResource\Exceptions\Redirection($response, $ex);
+                    break;
+                case 400:
+                    throw new \ActiveResource\Exceptions\BadRequest($response, $ex);
+                    break;
+                case 401:
+                    throw new \ActiveResource\Exceptions\UnauthorizedAccess($response, $ex);
+                    break;
+                case 403:
+                    throw new \ActiveResource\Exceptions\ForbiddenAccess($response, $ex);
+                    break;
+                case 404:
+                    throw new \ActiveResource\Exceptions\ResourceNotFound($response, $ex);
+                    break;
+                case 405:
+                    throw new \ActiveResource\Exceptions\MethodNotAllowed($response, $ex);
+                    break;
+                case 409:
+                    throw new \ActiveResource\Exceptions\ResourceConflict($response, $ex);
+                    break;
+                case 410:
+                    throw new \ActiveResource\Exceptions\ResourceGone($response, $ex);
+                    break;
+                case 404:
+                    throw new \ActiveResource\Exceptions\ResourceNotFound($response, $ex);
+                    break;
+                case 422:
+                    throw new \ActiveResource\Exceptions\ResourceInvalid($response, $ex);
+                    break;
+                case 500:
+                case 501:
+                case 502:
+                case 503:
+                case 504:
+                case 505:
+                case 509:
+                    throw new \ActiveResource\Exceptions\ServerError($response, $ex);
+                    break;
                 default:
-                    throw new \ActiveResource\Exceptions\BadRequest($ex);
+                    throw new \ActiveResource\Exceptions\ConnectionException($response, $ex);
             }
         }
     }

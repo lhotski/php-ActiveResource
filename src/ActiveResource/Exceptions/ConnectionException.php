@@ -4,40 +4,40 @@ namespace ActiveResource\Exceptions;
 
 class ConnectionException extends \Exception
 {
-  protected $response;
+    protected $response;
 
-  public function __construct($response, $message = null)
-  {  
-      if ($response instanceof \Exception) {
-          /**
-           * @var \Exception $response
-           */
-          parent::__construct($response->getMessage(), $response->getCode(), $response);
-      } else {
-          parent::__construct($message);
-          $this->response = $response;
-      }
-  }
-
-  public function getResponse()
-  {
-    return $this->response;
-  }
-
-  public function __toString()
-  {
-    $message = sprintf('%s: %s.', get_class($this), $this->message);
-
-    if (is_object($this->response) && method_exists($this->response, 'getStatus'))
+    public function __construct($response, $message = null)
     {
-      $message .= sprintf('  Response code = %s', $this->response->getStatus());
+        if ($message instanceof \Exception) {
+            /**
+             * @var \Exception $response
+             */
+            parent::__construct($message->getMessage(), $message->getCode(), $message);
+        } else {
+            parent::__construct($message);
+        }
+        $this->response = $response;
     }
 
-    if (is_object($this->response) && method_exists($this->response, 'getReasonPhrase'))
+    public function getResponse()
     {
-      $message .= sprintf('  Response message = %s', $this->response->getReasonPhrase());
+        return $this->response;
     }
 
-    return $message;
-  }
+    public function __toString()
+    {
+        $message = sprintf('%s: %s.', get_class($this), $this->message);
+
+        if (is_object($this->response) && method_exists($this->response, 'getStatus'))
+        {
+            $message .= sprintf('  Response code = %s', $this->response->getStatus());
+        }
+
+        if (is_object($this->response) && method_exists($this->response, 'getReasonPhrase'))
+        {
+            $message .= sprintf('  Response message = %s', $this->response->getReasonPhrase());
+        }
+
+        return $message;
+    }
 }

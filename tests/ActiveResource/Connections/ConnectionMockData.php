@@ -17,8 +17,8 @@ define('MOCK_DATA_URL', MOCK_DATA_PROTOCOL . '://' . MOCK_DATA_USER . ':' . MOCK
 define('MOCK_DATA_URL_PREFIX', MOCK_DATA_PROTOCOL . '://' . MOCK_DATA_URI);
 
 $mock_data_get = array(
-  array(
-     'response' => <<<RESPONSE
+    array(
+        'response' => <<<RESPONSE
 HTTP/1.1 200 OK
 Server: nginx/0.8.33
 Date: Wed, 21 Apr 2010 10:32:14 GMT
@@ -66,14 +66,14 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/projects.xml'
     ,'code'     => 200
     ,'headers'  => array(
-      'server'        => [0=>'nginx/0.8.33'],
-      'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-      'content-type'  => [0=>'application/xml; charset=utf-8'],
-      'status'        => [0=>200]
+        'server'        => [0=>'nginx/0.8.33'],
+        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
+        'content-type'  => [0=>'application/xml; charset=utf-8'],
+        'status'        => [0=>200]
     )
-  ),
-  array(
-     'response' => <<<RESPONSE
+    ),
+    array(
+        'response' => <<<RESPONSE
 HTTP/1.1 200 OK
 Server: nginx/0.8.33
 Date: Wed, 21 Apr 2010 10:32:14 GMT
@@ -105,14 +105,14 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 200
     ,'headers'  => array(
-      'server'        => [0=>'nginx/0.8.33'],
-      'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-      'content-type'  => [0=>'application/xml; charset=utf-8'],
-      'status'        => [0=>200]
+        'server'        => [0=>'nginx/0.8.33'],
+        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
+        'content-type'  => [0=>'application/xml; charset=utf-8'],
+        'status'        => [0=>200]
     )
-  ),
-  array(
-     'response' => <<<RESPONSE
+    ),
+    array(
+        'response' => <<<RESPONSE
 HTTP/1.1 201 OK
 Server: nginx/0.8.33
 Date: Wed, 21 Apr 2010 10:32:14 GMT
@@ -125,17 +125,17 @@ RESPONSE
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 201
     ,'headers'  => array(
-      'server'        => [0=>'nginx/0.8.33'],
-      'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-      'content-type'  => [0=>'application/xml; charset=utf-8'],
-      'status'        => [0=>201]
+        'server'        => [0=>'nginx/0.8.33'],
+        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
+        'content-type'  => [0=>'application/xml; charset=utf-8'],
+        'status'        => [0=>201]
     )
-  ),
+    ),
 );
 
 $mock_data_post = array(
-  array(
-     'response' => <<<RESPONSE
+    array(
+        'response' => <<<RESPONSE
 HTTP/1.1 201 OK
 Server: nginx/0.8.33
 Date: Wed, 21 Apr 2010 10:32:14 GMT
@@ -157,14 +157,14 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 201
     ,'headers'  => array(
-      'server'        => [0=>'nginx/0.8.33'],
-      'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-      'content-type'  => [0=>'application/xml; charset=utf-8'],
-      'status'        => [0=>201]
+        'server'        => [0=>'nginx/0.8.33'],
+        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
+        'content-type'  => [0=>'application/xml; charset=utf-8'],
+        'status'        => [0=>201]
     )
-  ),
-  array(
-     'response' => <<<RESPONSE
+    ),
+    array(
+        'response' => <<<RESPONSE
 HTTP/1.1 203 OK
 Server: nginx/0.8.33
 Date: Wed, 21 Apr 2010 10:32:14 GMT
@@ -196,17 +196,17 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2/subprojects/5.xml'
     ,'code'     => 203
     ,'headers'  => array(
-      'server'        => [0=>'nginx/0.8.33'],
-      'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-      'content-type'  => [0=>'application/xml; charset=utf-8'],
-      'status'        => [0=>203]
+        'server'        => [0=>'nginx/0.8.33'],
+        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
+        'content-type'  => [0=>'application/xml; charset=utf-8'],
+        'status'        => [0=>203]
     )
-  ),
+    ),
 );
 
 $mock_data_head = array(
-  array(
-     'response' => <<<RESPONSE
+    array(
+        'response' => <<<RESPONSE
 HTTP/1.1 203 OK
 Server: nginx/0.8.33
 Date: Wed, 21 Apr 2010 10:32:14 GMT
@@ -218,14 +218,14 @@ RESPONSE
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 203
     ,'headers'  => array(
-      'server'        => [0=>'nginx/0.8.33'],
-      'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-      'content-type'  => [0=>'application/xml; charset=utf-8'],
-      'status'        => [0=>203]
+        'server'        => [0=>'nginx/0.8.33'],
+        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
+        'content-type'  => [0=>'application/xml; charset=utf-8'],
+        'status'        => [0=>203]
     )
-  ),
-  array(
-     'response' => <<<RESPONSE
+    ),
+    array(
+        'response' => <<<RESPONSE
 HTTP/1.1 201 OK
 Server: nginx/0.8.33
 Date: Wed, 21 Apr 2010 10:32:14 GMT
@@ -237,58 +237,58 @@ RESPONSE
     ,'url'      => MOCK_DATA_URL_PREFIX . '/projects.xml'
     ,'code'     => 201
     ,'headers'  => array(
-      'server'        => [0=>'nginx/0.8.33'],
-      'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-      'content-type'  => [0=>'application/xml; charset=utf-8'],
-      'status'        => [0=>201]
+        'server'        => [0=>'nginx/0.8.33'],
+        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
+        'content-type'  => [0=>'application/xml; charset=utf-8'],
+        'status'        => [0=>201]
     )
-  ),
+    ),
 );
 
 $mock_data_bad_status = array(
-  array(
-     'response' => 304
+    array(
+        'response' => 304
     ,'exception'=> 'ActiveResource\Exceptions\Redirection'
-  ),
-  array(
-     'response' => 303
+    ),
+    array(
+        'response' => 303
     ,'exception'=> 'ActiveResource\Exceptions\Redirection'
-  ),
-  array(
-     'response' => 400
+    ),
+    array(
+        'response' => 400
     ,'exception'=> 'ActiveResource\Exceptions\BadRequest'
-  ),
-  array(
-     'response' => 401
+    ),
+    array(
+        'response' => 401
     ,'exception'=> 'ActiveResource\Exceptions\UnauthorizedAccess'
-  ),
-  array(
-     'response' => 403
+    ),
+    array(
+        'response' => 403
     ,'exception'=> 'ActiveResource\Exceptions\ForbiddenAccess'
-  ),
-  array(
-     'response' => 404
+    ),
+    array(
+        'response' => 404
     ,'exception'=> 'ActiveResource\Exceptions\ResourceNotFound'
-  ),
-  array(
-     'response' => 405
+    ),
+    array(
+        'response' => 405
     ,'exception'=> 'ActiveResource\Exceptions\MethodNotAllowed'
-  ),
-  array(
-     'response' => 409
+    ),
+    array(
+        'response' => 409
     ,'exception'=> 'ActiveResource\Exceptions\ResourceConflict'
-  ),
-  array(
-     'response' => 410
+    ),
+    array(
+        'response' => 410
     ,'exception'=> 'ActiveResource\Exceptions\ResourceGone'
-  ),
-  array(
-     'response' => 505
+    ),
+    array(
+        'response' => 505
     ,'exception'=> 'ActiveResource\Exceptions\ServerError'
-  ),
-  array(
-     'response' => 605
+    ),
+    array(
+        'response' => 605
     ,'exception'=> 'ActiveResource\Exceptions\ConnectionException'
-  ),
+    ),
 );
 

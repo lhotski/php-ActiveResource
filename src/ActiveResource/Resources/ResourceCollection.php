@@ -22,45 +22,45 @@ use ActiveResource\Connections\Connection;
  */
 class ResourceCollection
 {
-  protected $resources_namespace = '';
-  protected $connection;
-  protected $collection = array();
+    protected $resources_namespace = '';
+    protected $connection;
+    protected $collection = array();
 
-  public function __construct($namespace, Connection $connection)
-  {
-    $this->resources_namespace = $namespace;
-    $this->connection = $connection;
-  }
-
-  public function __get($name)
-  {
-    return $this->getResource($name);
-  }
-
-  public function getResource($name)
-  {
-    $class = $this->generateClassName($name);
-
-    if (!$this->isLoaded($class))
+    public function __construct($namespace, Connection $connection)
     {
-      $collection[$class] = $this->initResource($class);
+        $this->resources_namespace = $namespace;
+        $this->connection = $connection;
     }
 
-    return $collection[$class];
-  }
+    public function __get($name)
+    {
+        return $this->getResource($name);
+    }
 
-  protected function generateClassName($name)
-  {
-    return $this->resources_namespace . '\\' . $name;
-  }
+    public function getResource($name)
+    {
+        $class = $this->generateClassName($name);
 
-  protected function isLoaded($class)
-  {
-    return isset($this->collection[$class]);
-  }
+        if (!$this->isLoaded($class))
+        {
+            $collection[$class] = $this->initResource($class);
+        }
 
-  protected function initResource($class)
-  {
-    return new ActiveResource($class, $this->connection);
-  }
+        return $collection[$class];
+    }
+
+    protected function generateClassName($name)
+    {
+        return $this->resources_namespace . '\\' . $name;
+    }
+
+    protected function isLoaded($class)
+    {
+        return isset($this->collection[$class]);
+    }
+
+    protected function initResource($class)
+    {
+        return new ActiveResource($class, $this->connection);
+    }
 }
