@@ -29,20 +29,19 @@ class BaseTest extends PHPUnit_Framework_TestCase
         $mockedClient = $this->getMock('GuzzleHttp\Client');
         $connection->setClient($mockedClient);
 
-        $request = (new GuzzleHttp\Psr7\Request($method, $url, $headers, $body));
-        $response = (new GuzzleHttp\Psr7\Response($response_code, $headers, $body));
+        if ($body === null) $body='';
+        $request = (new GuzzleHttp\Message\Request($method, $url, $headers,  \GuzzleHttp\Stream\Stream::factory($body)));
+        $response = (new GuzzleHttp\Message\Response($response_code, $headers,  \GuzzleHttp\Stream\Stream::factory($body)));
 
         if (substr($response_code,0,1)==4) {
             $mockedClient
                 ->expects($this->once())
-                ->method('__call')
-                ->with($method)
+                ->method($method)
                 ->willThrowException(new \GuzzleHttp\Exception\ClientException('doh', $request, $response));
         } else {
             $mockedClient
                 ->expects($this->once())
-                ->method('__call')
-                ->with($method)
+                ->method($method)
                 ->will($this->returnValue($response));
         }
 

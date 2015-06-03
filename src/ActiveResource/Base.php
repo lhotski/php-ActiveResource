@@ -16,7 +16,7 @@ use ActiveResource\Schemas\AttrsSchema;
 use ActiveResource\Ext\Inflector;
 use ActiveResource\Formats\Format;
 use ActiveResource\Errors\RemoteErrors;
-use Psr\Http\Message\ResponseInterface as Response;
+use \GuzzleHttp\Message\Response;
 
 /**
  * Base implements base REST model abstraction class.
@@ -1100,7 +1100,7 @@ abstract class Base
      */
     private function getIdFromResponse(Response $response)
     {
-        $header = $response->getHeaderLine('Location');
+        $header = $response->getHeader('Location');
         preg_match('/\/([^\/]*?)(\.\w+)?$/', $header, $matches);
 
         return isset($matches[1]) ? intval($matches[1]) : null;
@@ -1114,7 +1114,7 @@ abstract class Base
     private function loadAttributesFromResponse(Response $response)
     {
         if (!in_array($response->getStatusCode(), array(204, 304))
-            && '0' != $response->getHeaderLine('Content-Length')
+            && '0' != $response->getHeader('Content-Length')
             && 0 < strlen(trim($response->getBody())))
         {
             $decoded = self::getFormat()->decode($response->getBody());

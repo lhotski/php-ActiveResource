@@ -10,7 +10,7 @@
 
 namespace ActiveResource\Connections;
 
-use Psr\Http\Message\ResponseInterface;
+use \GuzzleHttp\Message\Response;
 
 /**
  * Connection interface describes base connection object
@@ -126,7 +126,7 @@ interface Connection
      * @param   string  $path                     resource path
      * @param   array   $headers                  specific headers hash
      *
-     * @return  ResponseInterface response instance
+     * @return  Response response instance
      */
     public function head($path, array $headers = array());
 
@@ -136,7 +136,7 @@ interface Connection
      * @param   string  $path                     resource path
      * @param   array   $headers                  specific headers hash
      *
-     * @return  ResponseInterface response instance
+     * @return  Response response instance
      */
     public function get($path, array $headers = array());
 
@@ -146,7 +146,7 @@ interface Connection
      * @param   string  $path                     resource path
      * @param   array   $headers                  specific headers hash
      *
-     * @return  ResponseInterface response instance
+     * @return  Response response instance
      */
     public function delete($path, array $headers = array());
 
@@ -157,7 +157,7 @@ interface Connection
      * @param   array   $headers                  specific headers hash
      * @param   string  $body                     request body
      *
-     * @return  ResponseInterface response instance
+     * @return  Response response instance
      */
     public function put($path, $body, array $headers = array());
 
@@ -168,7 +168,7 @@ interface Connection
      * @param   array   $headers                  specific headers hash
      * @param   string  $body                     request body
      *
-     * @return  ResponseInterface response instance
+     * @return  Response response instance
      */
     public function post($path, $body, array $headers = array());
 }
