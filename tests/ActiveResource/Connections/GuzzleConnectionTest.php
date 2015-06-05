@@ -59,11 +59,12 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
             $connection->setClient($mockedClient);
 
             if (empty($mock_data['body'])) $mock_data['body']='';
-            $response = new GuzzleHttp\Message\Response($mock_data['code'], $mock_data['headers'], \GuzzleHttp\Stream\Stream::factory($mock_data['body']));
+            $response = (new GuzzleHttp\Psr7\Response($mock_data['code'], $mock_data['headers'], $mock_data['body']));
 
             $mockedClient
                 ->expects($this->once())
-                ->method($method)
+                ->method('__call')
+                ->with($method)
                 ->will($this->returnValue($response));
 
             $data[] = array(
@@ -172,7 +173,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
             $mockedClient = $this->getMock('GuzzleHttp\Client');
             $connection->setClient($mockedClient);
 
-            $response = (new GuzzleHttp\Message\Response($mock_data['response']));
+            $response = (new GuzzleHttp\Psr7\Response($mock_data['response']));
 
             $mockedClient
                 ->expects($this->once())

@@ -1,7 +1,7 @@
 <?php
 namespace ActiveResource\Connections;
 
-use \GuzzleHttp\Message\Response;
+use Psr\Http\Message\ResponseInterface;
 
 class GuzzleConnection implements Connection {
     protected $site;
@@ -198,7 +198,7 @@ class GuzzleConnection implements Connection {
      * @param   string $path resource path
      * @param   array $headers specific headers hash
      *
-     * @return  Response response instance
+     * @return  ResponseInterface response instance
      */
     public function head($path, array $headers = array())
     {
@@ -211,7 +211,7 @@ class GuzzleConnection implements Connection {
      * @param   string $path resource path
      * @param   array $headers specific headers hash
      *
-     * @return  Response response instance
+     * @return  ResponseInterface response instance
      */
     public function get($path, array $headers = array())
     {
@@ -224,7 +224,7 @@ class GuzzleConnection implements Connection {
      * @param   string $path resource path
      * @param   array $headers specific headers hash
      *
-     * @return  Response response instance
+     * @return  ResponseInterface response instance
      */
     public function delete($path, array $headers = array())
     {
@@ -238,7 +238,7 @@ class GuzzleConnection implements Connection {
      * @param   array $headers specific headers hash
      * @param   string $body request body
      *
-     * @return  Response response instance
+     * @return  ResponseInterface response instance
      */
     public function put($path, $body, array $headers = array())
     {
@@ -252,7 +252,7 @@ class GuzzleConnection implements Connection {
      * @param   array $headers specific headers hash
      * @param   string $body request body
      *
-     * @return  Response response instance
+     * @return  ResponseInterface response instance
      */
     public function post($path, $body, array $headers = array())
     {
@@ -264,26 +264,21 @@ class GuzzleConnection implements Connection {
      * @param $path
      * @param $body
      * @param array $headers
-     * @return mixed
+     * @return \GuzzleHttp\Promise\PromiseInterface|mixed
      * @throws \ActiveResource\Exceptions\BadRequest
-     * @throws \ActiveResource\Exceptions\ConnectionException
-     * @throws \ActiveResource\Exceptions\ForbiddenAccess
-     * @throws \ActiveResource\Exceptions\MethodNotAllowed
-     * @throws \ActiveResource\Exceptions\Redirection
-     * @throws \ActiveResource\Exceptions\ResourceConflict
-     * @throws \ActiveResource\Exceptions\ResourceGone
-     * @throws \ActiveResource\Exceptions\ResourceInvalid
      * @throws \ActiveResource\Exceptions\ResourceNotFound
-     * @throws \ActiveResource\Exceptions\ServerError
-     * @throws \ActiveResource\Exceptions\UnauthorizedAccess
      */
     public function client_call($method, $path, $body, array $headers = array()) {
         try {
-            return $this->getClient()->$method(
-                $this->site . $this->base_path . $path,
+            return $this->getClient()->__call(
+                $method,
                 [
-                    'headers' => $headers,
-                    'body' => $body,
+                    $path,
+                    [
+                        'base_uri' => $this->site . $this->base_path,
+                        'headers' => $headers,
+                        'body' => $body,
+                    ]
                 ]
             );
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
