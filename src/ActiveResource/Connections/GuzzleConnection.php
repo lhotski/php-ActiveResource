@@ -273,9 +273,9 @@ class GuzzleConnection implements Connection {
             return $this->getClient()->__call(
                 $method,
                 [
-                    $path,
+                    $this->base_path . $path,
                     [
-                        'base_uri' => $this->site . $this->base_path,
+                        'base_uri' => $this->site,
                         'headers' => $headers,
                         'body' => $body,
                     ]
