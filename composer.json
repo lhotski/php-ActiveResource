@@ -19,7 +19,7 @@
     }
   ],
   "require": {
-    "php": ">=5.5",
+    "php": ">=5.3",
     "cdyweb/http-adapter": "dev-master#44cc54cf696fc822d4104007103ddb46ac5221e6"
   },
   "require-dev": {
