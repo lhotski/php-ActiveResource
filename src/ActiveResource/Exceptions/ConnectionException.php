@@ -2,26 +2,19 @@
 
 namespace ActiveResource\Exceptions;
 
-class ConnectionException extends \Exception
+use cdyweb\http\Exception\RequestException;
+
+class ConnectionException extends RequestException
 {
-    protected $response;
-
-    public function __construct($response, $message = null)
+    public function __construct($message = null)
     {
-        if ($message instanceof \Exception) {
-            /**
-             * @var \Exception $response
-             */
-            parent::__construct($message->getMessage(), $message->getCode(), $message);
+        if ($message instanceof RequestException) {
+            parent::__construct($message->getMessage(), $message->getRequest(), $message->getResponse(), $message);
+        } else if ($message instanceof \Exception) {
+            parent::__construct($message->getMessage(), null, null, $message);
         } else {
-            parent::__construct($message);
+            parent::__construct($message, null, null, null);
         }
-        $this->response = $response;
-    }
-
-    public function getResponse()
-    {
-        return $this->response;
     }
 
     public function __toString()

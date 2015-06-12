@@ -26,23 +26,20 @@ class BaseTest extends PHPUnit_Framework_TestCase
     private function getMockedConnection($method, $url, $body, $response_code, $headers=[])
     {
         $connection = new Connection($url);
-        $mockedClient = $this->getMock('GuzzleHttp\Client');
+        $mockedClient = $this->getMock('\cdyweb\http\Adapter');
         $connection->setClient($mockedClient);
 
-        $request = (new GuzzleHttp\Psr7\Request($method, $url, $headers, $body));
-        $response = (new GuzzleHttp\Psr7\Response($response_code, $headers, $body));
+        $response = (new \cdyweb\http\psr\Response($response_code, $headers, $body));
 
         if (substr($response_code,0,1)==4) {
             $mockedClient
                 ->expects($this->once())
-                ->method('__call')
-                ->with($method)
-                ->willThrowException(new \GuzzleHttp\Exception\ClientException('doh', $request, $response));
+                ->method('send')
+                ->willThrowException(new \cdyweb\http\Exception\RequestException('not found', new \cdyweb\http\psr\Request($method, $url, $headers), $response));
         } else {
             $mockedClient
                 ->expects($this->once())
-                ->method('__call')
-                ->with($method)
+                ->method('send')
                 ->will($this->returnValue($response));
         }
 

@@ -1,19 +1,22 @@
 <?php
 namespace ActiveResource\Connections;
 
+use cdyweb\http\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 
 class GuzzleConnection implements Connection {
-    protected $site;
-    protected $base_path = '';
-    protected $username = '';
-    protected $password = '';
-    protected $auth_type = 'basic';
-    protected $headers = array();
-    protected $timeout = null;
 
     /**
-     * @var \GuzzleHttp\Client
+     * @var \cdyweb\http\psr\Uri
+     */
+    protected $uri;
+
+    protected $headers = array();
+    protected $timeout = null;
+    protected $auth_type = 'basic';
+
+    /**
+     * @var \cdyweb\http\Adapter
      */
     protected $client;
 
@@ -33,18 +36,18 @@ class GuzzleConnection implements Connection {
     }
 
     /**
-     * @param \GuzzleHttp\Client $client
+     * @param \cdyweb\http\Adapter $client
      */
-    public function setClient(\GuzzleHttp\Client $client) {
+    public function setClient(\cdyweb\http\Adapter $client) {
         $this->client = $client;
     }
 
     /**
-     * @return \GuzzleHttp\Client
+     * @return \cdyweb\http\Adapter
      */
     public function getClient() {
         if (empty($this->client)) {
-            $this->client = new \GuzzleHttp\Client();
+            $this->client = \cdyweb\http\guzzle\Guzzle::getAdapter();
         }
         return $this->client;
     }
@@ -56,7 +59,8 @@ class GuzzleConnection implements Connection {
      */
     public function getSite()
     {
-        return $this->site;
+        if (empty($this->uri)) throw new \RuntimeException('URI not set');
+        return $this->uri->getScheme().'://'.$this->uri->getHost();
     }
 
     /**
@@ -69,11 +73,7 @@ class GuzzleConnection implements Connection {
      */
     public function setSite($site)
     {
-        $url = parse_url($site);
-        $this->site = "{$url['scheme']}://{$url['host']}";
-        if (isset($url['path'])) $this->base_path = $url['path'];
-        if (isset($url['user'])) $this->username = $url['user'];
-        if (isset($url['pass'])) $this->password = $url['pass'];
+        $this->uri = new \cdyweb\http\psr\Uri($site);
     }
 
     /**
@@ -83,7 +83,8 @@ class GuzzleConnection implements Connection {
      */
     public function setBasePath($base_path)
     {
-        $this->base_path = $base_path;
+        if (empty($this->uri)) throw new \RuntimeException('URI not set');
+        $this->uri = $this->uri->withPath($base_path);
     }
 
     /**
@@ -93,7 +94,8 @@ class GuzzleConnection implements Connection {
      */
     public function getBasePath()
     {
-        return $this->base_path;
+        if (empty($this->uri)) throw new \RuntimeException('URI not set');
+        return $this->uri->getPath();
     }
 
     /**
@@ -103,7 +105,9 @@ class GuzzleConnection implements Connection {
      */
     public function getUsername()
     {
-        return $this->username;
+        if (empty($this->uri)) throw new \RuntimeException('URI not set');
+        $arr=explode(':',$this->uri->getUserInfo(),2);
+        return isset($arr[0]) ? $arr[0] : null;
     }
 
     /**
@@ -113,7 +117,9 @@ class GuzzleConnection implements Connection {
      */
     public function getPassword()
     {
-        return $this->password;
+        if (empty($this->uri)) throw new \RuntimeException('URI not set');
+        $arr=explode(':',$this->uri->getUserInfo(),2);
+        return isset($arr[1]) ? $arr[1] : null;
     }
 
     /**
@@ -135,9 +141,9 @@ class GuzzleConnection implements Connection {
      */
     public function setAuth($username, $password, $auth_type = 'basic')
     {
+        if (empty($this->uri)) throw new \RuntimeException('URI not set');
         $this->auth_type = $auth_type;
-        $this->username = $username;
-        $this->password = $password;
+        $this->uri = $this->uri->withUserInfo($username, $password);
     }
 
     /**
@@ -148,7 +154,8 @@ class GuzzleConnection implements Connection {
      */
     public function getHeader($name)
     {
-        return isset($this->headers[$name]) ? $this->headers[$name] : null;
+        $headers = $this->getClient()->getRequestHeaders();
+        return isset($headers[$name]) ? $headers[$name] : null;
     }
 
     /**
@@ -158,7 +165,7 @@ class GuzzleConnection implements Connection {
      */
     public function setHeaders(array $headers)
     {
-        foreach ($headers as $name=>$value) $this->setHeader($name, $value);
+        $this->getClient()->appendRequestHeaders($headers);
     }
 
     /**
@@ -169,7 +176,7 @@ class GuzzleConnection implements Connection {
      */
     public function setHeader($name, $value)
     {
-        $this->headers[$name] = $value;
+        $this->getClient()->appendRequestHeader($name, $value);
     }
 
     /**
@@ -270,19 +277,10 @@ class GuzzleConnection implements Connection {
      */
     public function client_call($method, $path, $body, array $headers = array()) {
         try {
-            return $this->getClient()->__call(
-                $method,
-                [
-                    $this->base_path . $path,
-                    [
-                        'base_uri' => $this->site,
-                        'headers' => $headers,
-                        'body' => $body,
-                    ]
-                ]
-            );
-        } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            $response = $ex->getResponse();
+            return $this->getClient()->send($this->getClient()->createRequest(
+                $method, $this->uri . $path, $headers, $body
+            ));
+        } catch (RequestException $ex) {
             switch ($ex->getCode()) {
                 case 300:
                 case 301:
@@ -291,34 +289,34 @@ class GuzzleConnection implements Connection {
                 case 304:
                 case 305:
                 case 307:
-                    throw new \ActiveResource\Exceptions\Redirection($response, $ex);
+                    throw new \ActiveResource\Exceptions\Redirection($ex);
                     break;
                 case 400:
-                    throw new \ActiveResource\Exceptions\BadRequest($response, $ex);
+                    throw new \ActiveResource\Exceptions\BadRequest($ex);
                     break;
                 case 401:
-                    throw new \ActiveResource\Exceptions\UnauthorizedAccess($response, $ex);
+                    throw new \ActiveResource\Exceptions\UnauthorizedAccess($ex);
                     break;
                 case 403:
-                    throw new \ActiveResource\Exceptions\ForbiddenAccess($response, $ex);
+                    throw new \ActiveResource\Exceptions\ForbiddenAccess($ex);
                     break;
                 case 404:
-                    throw new \ActiveResource\Exceptions\ResourceNotFound($response, $ex);
+                    throw new \ActiveResource\Exceptions\ResourceNotFound($ex);
                     break;
                 case 405:
-                    throw new \ActiveResource\Exceptions\MethodNotAllowed($response, $ex);
+                    throw new \ActiveResource\Exceptions\MethodNotAllowed($ex);
                     break;
                 case 409:
-                    throw new \ActiveResource\Exceptions\ResourceConflict($response, $ex);
+                    throw new \ActiveResource\Exceptions\ResourceConflict($ex);
                     break;
                 case 410:
-                    throw new \ActiveResource\Exceptions\ResourceGone($response, $ex);
+                    throw new \ActiveResource\Exceptions\ResourceGone($ex);
                     break;
                 case 404:
-                    throw new \ActiveResource\Exceptions\ResourceNotFound($response, $ex);
+                    throw new \ActiveResource\Exceptions\ResourceNotFound($ex);
                     break;
                 case 422:
-                    throw new \ActiveResource\Exceptions\ResourceInvalid($response, $ex);
+                    throw new \ActiveResource\Exceptions\ResourceInvalid($ex);
                     break;
                 case 500:
                 case 501:
@@ -327,10 +325,10 @@ class GuzzleConnection implements Connection {
                 case 504:
                 case 505:
                 case 509:
-                    throw new \ActiveResource\Exceptions\ServerError($response, $ex);
+                    throw new \ActiveResource\Exceptions\ServerError($ex);
                     break;
                 default:
-                    throw new \ActiveResource\Exceptions\ConnectionException($response, $ex);
+                    throw new \ActiveResource\Exceptions\ConnectionException($ex);
             }
         }
     }

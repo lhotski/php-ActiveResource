@@ -1,6 +1,7 @@
 {
     "require": {
-        "cdyweb/http-adapter": "dev-master",
+        "cdyweb/php-active-resource" : "dev-master#3e5b1cfcae7a7c7232a58496ab4cfee342e6fa2b",
+        "cdyweb/http-adapter": "dev-master#44cc54cf696fc822d4104007103ddb46ac5221e6",
         "guzzlehttp/guzzle": "~6.0"
     }
 }

@@ -2,25 +2,25 @@
 
 require_once __DIR__ . '/ConnectionMockData.php';
 
-use ActiveResource\Connections\GuzzleConnection as Connection;
+use ActiveResource\Connections\GuzzleConnection;
 
 class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
 {
     public function newConnectionProvider()
     {
         return array(
-            array(new Connection('http://mysite.com'), 'http://mysite.com', '', null, null),
-            array(new Connection('http://subdom.mysite.com/path/2/test'), 'http://subdom.mysite.com', '/path/2/test', null, null),
-            array(new Connection('http://ever:test123@subdom.mysite.com/path'), 'http://subdom.mysite.com', '/path', 'ever', 'test123'),
-            array(new Connection('https://subdom.mysite.com'), 'https://subdom.mysite.com', '', null, null),
-            array(new Connection('https://ever:test123@subdom.mysite.com/path/23/sub'), 'https://subdom.mysite.com', '/path/23/sub', 'ever', 'test123'),
+            array(new GuzzleConnection('http://mysite.com'), 'http://mysite.com', '', null, null),
+            array(new GuzzleConnection('http://subdom.mysite.com/path/2/test'), 'http://subdom.mysite.com', '/path/2/test', null, null),
+            array(new GuzzleConnection('http://ever:test123@subdom.mysite.com/path'), 'http://subdom.mysite.com', '/path', 'ever', 'test123'),
+            array(new GuzzleConnection('https://subdom.mysite.com'), 'https://subdom.mysite.com', '', null, null),
+            array(new GuzzleConnection('https://ever:test123@subdom.mysite.com/path/23/sub'), 'https://subdom.mysite.com', '/path/23/sub', 'ever', 'test123'),
         );
     }
 
     /**
      * @dataProvider newConnectionProvider
      */
-    public function testConnectionConstruct(Connection $connection, $url, $path, $user, $pass)
+    public function testConnectionConstruct(GuzzleConnection $connection, $url, $path, $user, $pass)
     {
         $this->assertEquals($url,  $connection->getSite(), 'Right site base URL');
         $this->assertEquals($user, $connection->getUsername(), 'Right username');
@@ -31,7 +31,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider newConnectionProvider
      */
-    public function testConnectionSetters(Connection $connection, $url, $path, $user, $pass)
+    public function testConnectionSetters(GuzzleConnection $connection, $url, $path, $user, $pass)
     {
         $user .= '_setTest';
         $pass .= '_setTest';
@@ -54,17 +54,16 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
         else $arr=$GLOBALS['mock_data_'.$method];
         foreach ($arr as $mock_data)
         {
-            $connection = new Connection(MOCK_DATA_URL);
-            $mockedClient = $this->getMock('GuzzleHttp\Client');
+            $connection = new GuzzleConnection(MOCK_DATA_URL);
+            $mockedClient = $this->getMock('\cdyweb\http\Adapter');
             $connection->setClient($mockedClient);
 
             if (empty($mock_data['body'])) $mock_data['body']='';
-            $response = (new GuzzleHttp\Psr7\Response($mock_data['code'], $mock_data['headers'], $mock_data['body']));
+            $response = (new \cdyweb\http\psr\Response($mock_data['code'], $mock_data['headers'], $mock_data['body']));
 
             $mockedClient
                 ->expects($this->once())
-                ->method('__call')
-                ->with($method)
+                ->method('send')
                 ->will($this->returnValue($response));
 
             $data[] = array(
@@ -83,7 +82,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedGetConnectionProvider
      */
-    public function testGet(Connection $connection, $body, $path, $code)
+    public function testGet(GuzzleConnection $connection, $body, $path, $code)
     {
         $response = $connection->get($path);
 
@@ -102,7 +101,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedHeadConnectionProvider
      */
-    public function testHead(Connection $connection, $body, $path, $code, array $headers)
+    public function testHead(GuzzleConnection $connection, $body, $path, $code, array $headers)
     {
         $response = $connection->head($path);
         // Response test
@@ -119,7 +118,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedDeleteConnectionProvider
      */
-    public function testDelete(Connection $connection, $body, $path, $code, array $headers)
+    public function testDelete(GuzzleConnection $connection, $body, $path, $code, array $headers)
     {
         $response = $connection->delete($path);
         // Response test
@@ -136,7 +135,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedPostConnectionProvider
      */
-    public function testPost(Connection $connection, $body, $path, $code, array $headers)
+    public function testPost(GuzzleConnection $connection, $body, $path, $code, array $headers)
     {
         $response = $connection->post($path, $body);
 
@@ -153,7 +152,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedPutConnectionProvider
      */
-    public function testPut(Connection $connection, $body, $path, $code, array $headers)
+    public function testPut(GuzzleConnection $connection, $body, $path, $code, array $headers)
     {
         $response = $connection->put($path, $body);
 
@@ -169,16 +168,15 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
         foreach ($GLOBALS['mock_data_bad_status'] as $mock_data)
         {
 
-            $connection = new Connection(MOCK_DATA_URL);
-            $mockedClient = $this->getMock('GuzzleHttp\Client');
+            $connection = new GuzzleConnection(MOCK_DATA_URL);
+            $mockedClient = $this->getMock('\cdyweb\http\Adapter');
             $connection->setClient($mockedClient);
 
-            $response = (new GuzzleHttp\Psr7\Response($mock_data['response']));
+            $response = (new \cdyweb\http\psr\Response($mock_data['response']));
 
             $mockedClient
                 ->expects($this->once())
-                ->method('__call')
-                ->with('get')
+                ->method('send')
                 ->will($this->returnValue($response));
 
             $data[] = array(
@@ -192,7 +190,7 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider connectionBadStatusCodeProvider
      */
-    public function testBadStatusExceptions(Connection $connection, $exception)
+    public function testBadStatusExceptions(GuzzleConnection $connection, $exception)
     {
         //$this->setExpectedException($exception);
         $connection->get('/');
