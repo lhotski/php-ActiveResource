@@ -226,7 +226,8 @@ XML
         $format = new XMLFormat;
         $root_name = Inflector::isHash($data) ? 'topic' : 'topics';
 
-        $result=str_replace("\n","\r\n",$format->encode(array($root_name => $data)));
+        $result=$format->encode(array($root_name => $data));
+        if (file_exists('c:')) $result = str_replace("\n","\r\n",$result);
         $this->assertEquals($xml, $result, 'Correctly encoded');
     }
 }

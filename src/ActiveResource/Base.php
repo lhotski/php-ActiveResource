@@ -343,7 +343,7 @@ abstract class Base
     public static function isExists($id, array $prefix_options, array $query_options, Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
         try
         {
@@ -373,7 +373,7 @@ abstract class Base
     public static function build(array $prefix_options, array $query_options, Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         $response = $connection->get(self::getNewElementPath($prefix_options, $query_options));
@@ -494,7 +494,7 @@ abstract class Base
     public static function find($criteria, Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         if (!is_array($criteria))
@@ -548,7 +548,7 @@ abstract class Base
     public static function collectionGet($method_name, array $params = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
@@ -597,7 +597,7 @@ abstract class Base
     public static function collectionPost($method_name, array $params = array(), array $body = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
@@ -635,7 +635,7 @@ abstract class Base
     public static function collectionPut($method_name, array $params = array(), array $body = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
@@ -669,7 +669,7 @@ abstract class Base
     public static function collectionDelete($method_name, array $params = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
@@ -699,7 +699,7 @@ abstract class Base
     public static function collectionHead($method_name, array $params = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
@@ -839,7 +839,7 @@ abstract class Base
     public static function findEvery(array $args = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         try
@@ -880,7 +880,7 @@ abstract class Base
     public static function findOne(array $args = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         try
@@ -912,7 +912,7 @@ abstract class Base
     public static function findSingle($id, array $args = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         try
@@ -1066,7 +1066,7 @@ abstract class Base
     protected static function instantiateRecord(array $attrs, array $prefix_options = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         $class  = get_called_class();
@@ -1087,7 +1087,7 @@ abstract class Base
     protected static function instantiateCollection(array $attrs_list, array $prefix_options = array(), Connection $connection = null)
     {
         if (null === $connection) {
-            $connection = self::getDefaultConnection();
+            $connection = static::getDefaultConnection();
         }
 
         $list = array();
