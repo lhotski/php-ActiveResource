@@ -66,10 +66,10 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/projects.xml'
     ,'code'     => 200
     ,'headers'  => array(
-        'server'        => [0=>'nginx/0.8.33'],
-        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-        'content-type'  => [0=>'application/xml; charset=utf-8'],
-        'status'        => [0=>200]
+        'server'        => array(0=>'nginx/0.8.33'),
+        'date'          => array(0=>'Wed, 21 Apr 2010 10:32:14 GMT'),
+        'content-type'  => array(0=>'application/xml; charset=utf-8'),
+        'status'        => array(0=>200)
     )
     ),
     array(
@@ -105,10 +105,10 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 200
     ,'headers'  => array(
-        'server'        => [0=>'nginx/0.8.33'],
-        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-        'content-type'  => [0=>'application/xml; charset=utf-8'],
-        'status'        => [0=>200]
+        'server'        => array(0=>'nginx/0.8.33'),
+        'date'          => array(0=>'Wed, 21 Apr 2010 10:32:14 GMT'),
+        'content-type'  => array(0=>'application/xml; charset=utf-8'),
+        'status'        => array(0=>200)
     )
     ),
     array(
@@ -125,10 +125,10 @@ RESPONSE
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 201
     ,'headers'  => array(
-        'server'        => [0=>'nginx/0.8.33'],
-        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-        'content-type'  => [0=>'application/xml; charset=utf-8'],
-        'status'        => [0=>201]
+        'server'        => array(0=>'nginx/0.8.33'),
+        'date'          => array(0=>'Wed, 21 Apr 2010 10:32:14 GMT'),
+        'content-type'  => array(0=>'application/xml; charset=utf-8'),
+        'status'        => array(0=>201)
     )
     ),
 );
@@ -157,10 +157,10 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 201
     ,'headers'  => array(
-        'server'        => [0=>'nginx/0.8.33'],
-        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-        'content-type'  => [0=>'application/xml; charset=utf-8'],
-        'status'        => [0=>201]
+        'server'        => array(0=>'nginx/0.8.33'),
+        'date'          => array(0=>'Wed, 21 Apr 2010 10:32:14 GMT'),
+        'content-type'  => array(0=>'application/xml; charset=utf-8'),
+        'status'        => array(0=>201)
     )
     ),
     array(
@@ -196,10 +196,10 @@ BODY
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2/subprojects/5.xml'
     ,'code'     => 203
     ,'headers'  => array(
-        'server'        => [0=>'nginx/0.8.33'],
-        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-        'content-type'  => [0=>'application/xml; charset=utf-8'],
-        'status'        => [0=>203]
+        'server'        => array(0=>'nginx/0.8.33'),
+        'date'          => array(0=>'Wed, 21 Apr 2010 10:32:14 GMT'),
+        'content-type'  => array(0=>'application/xml; charset=utf-8'),
+        'status'        => array(0=>203)
     )
     ),
 );
@@ -218,10 +218,10 @@ RESPONSE
     ,'url'      => MOCK_DATA_URL_PREFIX . '/project/2.xml'
     ,'code'     => 203
     ,'headers'  => array(
-        'server'        => [0=>'nginx/0.8.33'],
-        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-        'content-type'  => [0=>'application/xml; charset=utf-8'],
-        'status'        => [0=>203]
+        'server'        => array(0=>'nginx/0.8.33'),
+        'date'          => array(0=>'Wed, 21 Apr 2010 10:32:14 GMT'),
+        'content-type'  => array(0=>'application/xml; charset=utf-8'),
+        'status'        => array(0=>203)
     )
     ),
     array(
@@ -237,10 +237,10 @@ RESPONSE
     ,'url'      => MOCK_DATA_URL_PREFIX . '/projects.xml'
     ,'code'     => 201
     ,'headers'  => array(
-        'server'        => [0=>'nginx/0.8.33'],
-        'date'          => [0=>'Wed, 21 Apr 2010 10:32:14 GMT'],
-        'content-type'  => [0=>'application/xml; charset=utf-8'],
-        'status'        => [0=>201]
+        'server'        => array(0=>'nginx/0.8.33'),
+        'date'          => array(0=>'Wed, 21 Apr 2010 10:32:14 GMT'),
+        'content-type'  => array(0=>'application/xml; charset=utf-8'),
+        'status'        => array(0=>201)
     )
     ),
 );

@@ -23,7 +23,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         GuzzleConnection::init(BASE_URL);
     }
 
-    private function getMockedConnection($method, $url, $body, $response_code, $headers=[])
+    private function getMockedConnection($method, $url, $body, $response_code, $headers=array())
     {
         $connection = new GuzzleConnection($url);
         $mockedClient = $this->getMock('\cdyweb\http\Adapter');
@@ -143,7 +143,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 202,
-                json_encode(['todo_list'=>['id'=>5, 'user_id'=>1, 'name'=>'LIST']])
+                json_encode(array('todo_list'=>array('id'=>5, 'user_id'=>1, 'name'=>'LIST')))
             ,5
             ,1
             ,'LIST'
@@ -153,7 +153,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 200,
-                json_encode(['todo_list'=>['id'=>1, 'user_id'=>2, 'name'=>'ToDo list']])
+                json_encode(array('todo_list'=>array('id'=>1, 'user_id'=>2, 'name'=>'ToDo list')))
             ,1
             ,2
             ,'ToDo list'
@@ -201,8 +201,8 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 201
-            ,json_encode(['todo_list'=>['user_id'=>41, 'name'=>'everzet', 'is-bool'=>true]])
-            , ['Location'=>[BASE_URL.'/todo_list/5']]
+            ,json_encode(array('todo_list'=>array('user_id'=>41, 'name'=>'everzet', 'is-bool'=>true)))
+            , array('Location'=>array(BASE_URL.'/todo_list/5'))
             ,BASE_URL . '/todo_lists.xml'
             ,41
             ,'everzet'
@@ -212,8 +212,8 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 202
-            ,json_encode(['todo_list'=>['user_id'=>55, 'name'=>'Ivan', 'is-bool'=>false]])
-            , ['Location'=>[]]
+            ,json_encode(array('todo_list'=>array('user_id'=>55, 'name'=>'Ivan', 'is-bool'=>false)))
+            , array('Location'=>array())
             ,BASE_URL . '/todo_lists.xml'
             ,55
             ,'Ivan'
@@ -242,8 +242,8 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 204
-            ,json_encode(['todo_list'=>['user_id'=>41, 'name'=>'everzet', 'is-bool'=>true]])
-            ,['Location'=> [BASE_URL.'/todo_lists/5.xml']]
+            ,json_encode(array('todo_list'=>array('user_id'=>41, 'name'=>'everzet', 'is-bool'=>true)))
+            ,array('Location'=> array(BASE_URL.'/todo_lists/5.xml'))
             ,BASE_URL . '/todo_lists/5.xml'
             ,41
             ,'everzet'
@@ -253,8 +253,8 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 202
-            ,json_encode(['todo_list'=>['user_id'=>55, 'name'=>'Ivan', 'is-bool'=>false]])
-            ,['Location'=> [BASE_URL.'/todo_lists/5.xml']]
+            ,json_encode(array('todo_list'=>array('user_id'=>55, 'name'=>'Ivan', 'is-bool'=>false)))
+            ,array('Location'=> array(BASE_URL.'/todo_lists/5.xml'))
             ,BASE_URL . '/todo_lists/10.xml'
             ,55
             ,'Ivan'
@@ -309,9 +309,9 @@ class BaseTest extends PHPUnit_Framework_TestCase
 
     public function findDataProvider()
     {
-        $person_response = json_encode(['person'=>['id'=>5, 'name'=>'Mary']]);
-        $people_response = json_encode(['people'=>[['id'=>12, 'name'=>'John'],['id'=>5, 'name'=>'Mary'],['id'=>104, 'name'=>'David']]]);
-        $managers_response = json_encode(['people'=>[['id'=>104, 'name'=>'David'],['id'=>5, 'name'=>'Mary']]]);
+        $person_response = json_encode(array('person'=>array('id'=>5, 'name'=>'Mary')));
+        $people_response = json_encode(array('people'=>array(array('id'=>12, 'name'=>'John'),array('id'=>5, 'name'=>'Mary'),array('id'=>104, 'name'=>'David'))));
+        $managers_response = json_encode(array('people'=>array(array('id'=>104, 'name'=>'David'),array('id'=>5, 'name'=>'Mary'))));
 
         return array(
             array(
@@ -425,7 +425,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,json_encode(['people'=>[['id'=>15, 'name'=>'David'],['id'=>22, 'name'=>'John']]])
+            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,'positions'
             ,array()
             ,BASE_URL . '/people/positions.xml'
@@ -433,7 +433,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 200
-            ,json_encode(['person'=>['id'=>22, 'name'=>'John']])
+            ,json_encode(array('person'=>array('id'=>22, 'name'=>'John')))
             ,'managers'
             ,array('title' => 'CEO', 'project_id' => 22)
             ,BASE_URL . '/projects/22/people/managers.xml?title=CEO'
@@ -458,7 +458,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,json_encode(['people'=>[['id'=>15, 'name'=>'David'],['id'=>22, 'name'=>'John']]])
+            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,'positions'
             ,array()
             ,BASE_URL . '/people/11/positions.xml'
@@ -467,7 +467,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 200
-            ,json_encode(['person'=>['id'=>22, 'name'=>'John']])
+            ,json_encode(array('person'=>array('id'=>22, 'name'=>'John')))
             ,'managers'
             ,array('title' => 'CEO', 'project_id' => 22)
             ,BASE_URL . '/projects/22/people/new/managers.xml?title=CEO'
@@ -495,7 +495,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,json_encode(['people'=>[['id'=>15, 'name'=>'David'],['id'=>22, 'name'=>'John']]])
+            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,BASE_URL . '/people/3/poll.xml?filter=%2A&sex=man'
             ,3
             ,'poll'
@@ -505,7 +505,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 201,
-                json_encode(['people'=>[['id'=>15, 'name'=>'David'],['id'=>22, 'name'=>'John']]])
+                json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,BASE_URL . '/projects/22/people/25/register.xml?title=CEO'
             ,25
             ,'register'
@@ -541,7 +541,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 204
-            ,json_encode(['people'=>[['id'=>15, 'name'=>'David'],['id'=>22, 'name'=>'John']]])
+            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,BASE_URL . '/people/poll.xml?filter=%2A&sex=man'
             ,'poll'
             ,array('filter' => '*', 'sex' => 'man')
@@ -550,7 +550,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 201
-            ,json_encode(['people'=>[['id'=>15, 'name'=>'David'],['id'=>22, 'name'=>'John']]])
+            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,BASE_URL . '/projects/22/people/register.xml?title=CEO'
             ,'register'
             ,array('project_id' => 22, 'title' => 'CEO')
@@ -663,7 +663,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 422
-            ,json_encode(['errors'=>['Name cannot be blank','User is not a number']])
+            ,json_encode(array('errors'=>array('Name cannot be blank','User is not a number')))
             ,BASE_URL . '/todo_lists.xml',
                 array(
                     'Name cannot be blank',
