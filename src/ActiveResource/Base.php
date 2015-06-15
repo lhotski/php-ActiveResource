@@ -342,6 +342,9 @@ abstract class Base
      */
     public static function isExists($id, array $prefix_options, array $query_options, Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
         try
         {
             try
@@ -369,6 +372,10 @@ abstract class Base
      */
     public static function build(array $prefix_options, array $query_options, Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         $response = $connection->get(self::getNewElementPath($prefix_options, $query_options));
         $body     = self::getFormat()->decode($response->getBody());
 
@@ -486,6 +493,10 @@ abstract class Base
      */
     public static function find($criteria, Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         if (!is_array($criteria))
         {
             $criteria = array($criteria);
@@ -536,6 +547,10 @@ abstract class Base
 
     public static function collectionGet($method_name, array $params = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         list($prefix_options, $query_options) = self::splitParams($params);
 
         $response = $connection->get(
@@ -581,6 +596,10 @@ abstract class Base
 
     public static function collectionPost($method_name, array $params = array(), array $body = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         list($prefix_options, $query_options) = self::splitParams($params);
         $body = self::getFormat()->encode(array('request' => $body));
 
@@ -615,6 +634,10 @@ abstract class Base
 
     public static function collectionPut($method_name, array $params = array(), array $body = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         list($prefix_options, $query_options) = self::splitParams($params);
         $body = self::getFormat()->encode(array('request' => $body));
 
@@ -645,6 +668,10 @@ abstract class Base
 
     public static function collectionDelete($method_name, array $params = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         list($prefix_options, $query_options) = self::splitParams($params);
 
         $response = $connection->delete(
@@ -671,6 +698,10 @@ abstract class Base
 
     public static function collectionHead($method_name, array $params = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         list($prefix_options, $query_options) = self::splitParams($params);
 
         $response = $connection->head(
@@ -805,8 +836,12 @@ abstract class Base
         );
     }
 
-    protected static function findEvery(array $args = array(), Connection $connection = null)
+    public static function findEvery(array $args = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         try
         {
             list($from, $prefix_options, $query_options) = self::extractOptions($args);
@@ -842,8 +877,12 @@ abstract class Base
         }
     }
 
-    protected static function findOne(array $args = array(), Connection $connection = null)
+    public static function findOne(array $args = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         try
         {
             list($from, $prefix_options, $query_options) = self::extractOptions($args);
@@ -870,8 +909,12 @@ abstract class Base
         }
     }
 
-    protected static function findSingle($id, array $args = array(), Connection $connection = null)
+    public static function findSingle($id, array $args = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         try
         {
             list($from, $prefix_options, $query_options) = self::extractOptions($args);
@@ -1020,10 +1063,12 @@ abstract class Base
      *
      * @return  Base                                       new resource instance
      */
-    protected static function instantiateRecord(array $attrs,
-                                                array $prefix_options = array(),
-                                                Connection $connection = null)
+    protected static function instantiateRecord(array $attrs, array $prefix_options = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         $class  = get_called_class();
         $record = new $class($attrs, $connection);
 
@@ -1039,10 +1084,12 @@ abstract class Base
      *
      * @return  array                                                     array of Base objects
      */
-    protected static function instantiateCollection(array $attrs_list,
-                                                    array $prefix_options = array(),
-                                                    Connection $connection = null)
+    protected static function instantiateCollection(array $attrs_list, array $prefix_options = array(), Connection $connection = null)
     {
+        if (null === $connection) {
+            $connection = self::getDefaultConnection();
+        }
+
         $list = array();
         foreach ($attrs_list as $attrs)
         {
