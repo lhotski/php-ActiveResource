@@ -109,7 +109,7 @@ abstract class Base
      */
     public function getConnection()
     {
-        if (null === $this->connection) return self::getDefaultConnection();
+        if (null === $this->connection) return static::getDefaultConnection();
         return $this->connection;
     }
 
