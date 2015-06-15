@@ -20,14 +20,48 @@ use Psr\Http\Message\ResponseInterface;
  * @author     Konstantin Kudryashov <ever.zet@gmail.com>
  * @version    1.0.0
  */
-interface Connection
+abstract class Connection
 {
+
+    /**
+     * @var Connection
+     */
+    protected static $instance;
+
+    /**
+     * @return Connection
+     */
+    public static function getInstance()
+    {
+        return self::$instance;
+    }
+
+    /**
+     * Connection constructor
+     *
+     * @param   string $site   base site URL
+     */
+    public function __construct($site)
+    {
+        if (null === $site || empty($site))
+        {
+            throw new \InvalidArgumentException('Missing site URI');
+        }
+
+        $this->setSite($site);
+    }
+
+    public static function init($site) {
+        $class = get_called_class();
+        return self::$instance = new $class($site);
+    }
+
     /**
      * Returns site pure URL (without path & user parts)
      *
      * @return  string        site URL
      */
-    public function getSite();
+    abstract public function getSite();
 
     /**
      * Sets base site URL
@@ -37,42 +71,42 @@ interface Connection
      *
      * @param   string  $site base site URL
      */
-    public function setSite($site);
+    abstract public function setSite($site);
 
     /**
      * Sets base path
      *
      * @param   string  $path       base path to resources
      */
-    public function setBasePath($path);
+    abstract public function setBasePath($path);
 
     /**
      * Returns base path
      *
      * @return  string              base path to resources
      */
-    public function getBasePath();
+    abstract public function getBasePath();
 
     /**
      * Returns connection username
      *
      * @return  string              username (login)
      */
-    public function getUsername();
+    abstract public function getUsername();
 
     /**
      * Returns connection password
      *
      * @return  string              password
      */
-    public function getPassword();
+    abstract public function getPassword();
 
     /**
      * Returns connection auth type
      *
      * @return  string              auth type
      */
-    public function getAuthType();
+    abstract public function getAuthType();
 
     /**
      * Sets connection auth routines
@@ -81,7 +115,7 @@ interface Connection
      * @param   string  $password   password
      * @param   string  $auth_type  auth type ('basic' or 'digest')
      */
-    public function setAuth($username, $password, $auth_type = 'basic');
+    abstract public function setAuth($username, $password, $auth_type = 'basic');
 
     /**
      * Returns specific connection header
@@ -89,14 +123,14 @@ interface Connection
      * @param   string  $name       header name
      * @return  string              header
      */
-    public function getHeader($name);
+    abstract public function getHeader($name);
 
     /**
      * Sets specific connection headers
      *
      * @param   array   $headers    hash of headers
      */
-    public function setHeaders(array $headers);
+    abstract public function setHeaders(array $headers);
 
     /**
      * Sets specific connection header
@@ -104,21 +138,21 @@ interface Connection
      * @param   string  $name       header name
      * @param   string  $value      header
      */
-    public function setHeader($name, $value);
+    abstract public function setHeader($name, $value);
 
     /**
      * Returns connection timeout in ms
      *
      * @return  integer             connection timeout
      */
-    public function getTimeout();
+    abstract public function getTimeout();
 
     /**
      * Sets connection timeout
      *
      * @param   integer $timeout    connection timeout
      */
-    public function setTimeout($timeout);
+    abstract public function setTimeout($timeout);
 
     /**
      * Sends HEAD request & returns formatted response object
@@ -128,7 +162,7 @@ interface Connection
      *
      * @return  ResponseInterface response instance
      */
-    public function head($path, array $headers = array());
+    abstract public function head($path, array $headers = array());
 
     /**
      * Sends GET request & returns formatted response object
@@ -138,7 +172,7 @@ interface Connection
      *
      * @return  ResponseInterface response instance
      */
-    public function get($path, array $headers = array());
+    abstract public function get($path, array $headers = array());
 
     /**
      * Sends DELETE request & returns formatted response object
@@ -148,7 +182,7 @@ interface Connection
      *
      * @return  ResponseInterface response instance
      */
-    public function delete($path, array $headers = array());
+    abstract public function delete($path, array $headers = array());
 
     /**
      * Sends PUT request & returns formatted response object
@@ -159,7 +193,7 @@ interface Connection
      *
      * @return  ResponseInterface response instance
      */
-    public function put($path, $body, array $headers = array());
+    abstract public function put($path, $body, array $headers = array());
 
     /**
      * Sends POST request & returns formatted response object
@@ -170,5 +204,5 @@ interface Connection
      *
      * @return  ResponseInterface response instance
      */
-    public function post($path, $body, array $headers = array());
+    abstract public function post($path, $body, array $headers = array());
 }

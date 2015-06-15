@@ -28,6 +28,12 @@ use Psr\Http\Message\ResponseInterface as Response;
  */
 abstract class Base
 {
+
+    /**
+     * @var Connection
+     */
+    protected static $default_connection = null;
+
     /**
      * @var string
      */
@@ -36,7 +42,7 @@ abstract class Base
     /**
      * @var Connection
      */
-    protected $connection;
+    protected $connection = null;
 
     /**
      * @var Schema
@@ -54,12 +60,31 @@ abstract class Base
     protected $errors;
 
     /**
+     * @return Connection
+     */
+    public static function getDefaultConnection()
+    {
+        if (null === self::$default_connection) {
+            self::$default_connection = Connection::getInstance();
+        }
+        return self::$default_connection;
+    }
+
+    /**
+     * @param Connection $default_connection
+     */
+    public static function setDefaultConnection($connection)
+    {
+        self::$default_connection = $connection;
+    }
+
+    /**
      * Constructs new object
      *
      * @param   array  $attributes        object attributes
      * @param   Connection   $connection   connection instance
      */
-    public function __construct(array $attributes, Connection $connection)
+    public function __construct(array $attributes, Connection $connection = null)
     {
         $this->setConnection($connection);
         $this->setSchema(self::initSchema());
@@ -72,7 +97,7 @@ abstract class Base
      *
      * @param   Connection   $connection   conneciton instance
      */
-    public function setConnection(Connection $connection)
+    public function setConnection(Connection $connection = null)
     {
         $this->connection = $connection;
     }
@@ -84,6 +109,7 @@ abstract class Base
      */
     public function getConnection()
     {
+        if (null === $this->connection) return self::getDefaultConnection();
         return $this->connection;
     }
 
@@ -142,7 +168,6 @@ abstract class Base
         {
             $format = self::initFormat();
         }
-
         return $format;
     }
 
@@ -154,7 +179,6 @@ abstract class Base
     protected static function initFormat()
     {
         $class = self::formatClass();
-
         return new $class;
     }
 
@@ -176,7 +200,7 @@ abstract class Base
      *
      * @return  Base
      */
-    public static function init(array $attributes, Connection $connection)
+    public static function init(array $attributes, Connection $connection = null)
     {
         return self::instantiateRecord($attributes, array(), $connection);
     }
@@ -238,7 +262,6 @@ abstract class Base
             $this->id = $attributes['id'];
             unset($attributes['id']);
         }
-
         $this->schema->setValues($attributes);
     }
 
@@ -251,7 +274,7 @@ abstract class Base
         if ($this->isPersisted())
         {
             $this->load(
-                $this->connection->get(self::getElementPath($this->getId()))
+                $this->getConnection()->get(self::getElementPath($this->getId()))
             );
         }
     }
@@ -317,16 +340,13 @@ abstract class Base
      *
      * @return  boolean                                               true if exists, false otherwise
      */
-    public static function isExists($id, array $prefix_options,
-                                    array $query_options,
-                                    Connection $connection)
+    public static function isExists($id, array $prefix_options, array $query_options, Connection $connection = null)
     {
         try
         {
             try
             {
                 $response = $connection->head(self::getElementPath($id, $prefix_options, $query_options));
-
                 return 200 == $response->getStatusCode();
             }
             catch (\ActiveResource\Exceptions\ResourceGone $e)
@@ -347,7 +367,7 @@ abstract class Base
      *
      * @return  Base                                  new object
      */
-    public static function build(array $prefix_options, array $query_options, Connection $connection)
+    public static function build(array $prefix_options, array $query_options, Connection $connection = null)
     {
         $response = $connection->get(self::getNewElementPath($prefix_options, $query_options));
         $body     = self::getFormat()->decode($response->getBody());
@@ -403,8 +423,7 @@ abstract class Base
      */
     public function destroy()
     {
-        $response = $this->connection->delete(self::getElementPath($this->getId()));
-
+        $response = $this->getConnection()->delete(self::getElementPath($this->getId()));
         return 200 == $response->getStatusCode();
     }
 
@@ -465,7 +484,7 @@ abstract class Base
      *
      * @return  array|Base                         single object or array of objects
      */
-    public static function find($criteria, Connection $connection)
+    public static function find($criteria, Connection $connection = null)
     {
         if (!is_array($criteria))
         {
@@ -495,14 +514,14 @@ abstract class Base
 
         if ($this->isNew())
         {
-            $response = $this->connection->get(
+            $response = $this->getConnection()->get(
                 self::getCustomMethodNewElementPath($method_name, $prefix_options, $query_options),
                 array('accept' => self::getFormat()->getMimeType())
             );
         }
         else
         {
-            $response = $this->connection->get(
+            $response = $this->getConnection()->get(
                 self::getCustomMethodElementPath(
                     $method_name, $this->getId(), $prefix_options, $query_options
                 ),
@@ -515,8 +534,7 @@ abstract class Base
         return $attrs[end($keys)];
     }
 
-    public static function collectionGet($method_name, array $params = array(),
-                                         Connection $connection)
+    public static function collectionGet($method_name, array $params = array(), Connection $connection = null)
     {
         list($prefix_options, $query_options) = self::splitParams($params);
 
@@ -537,7 +555,7 @@ abstract class Base
 
         if ($this->isNew())
         {
-            $response = $this->connection->post(
+            $response = $this->getConnection()->post(
                 self::getCustomMethodNewElementPath($method_name, $prefix_options, $query_options), $body,
                 array(
                     'accept'        => self::getFormat()->getMimeType(),
@@ -547,7 +565,7 @@ abstract class Base
         }
         else
         {
-            $response = $this->connection->post(
+            $response = $this->getConnection()->post(
                 self::getCustomMethodElementPath(
                     $method_name, $this->getId(), $prefix_options, $query_options
                 ), $body,
@@ -561,8 +579,7 @@ abstract class Base
         return 201 === $response->getStatusCode();
     }
 
-    public static function collectionPost($method_name, array $params = array(),
-                                          array $body = array(), Connection $connection)
+    public static function collectionPost($method_name, array $params = array(), array $body = array(), Connection $connection = null)
     {
         list($prefix_options, $query_options) = self::splitParams($params);
         $body = self::getFormat()->encode(array('request' => $body));
@@ -583,7 +600,7 @@ abstract class Base
         list($prefix_options, $query_options) = self::splitParams($params);
         $body = self::getFormat()->encode(array('request' => $body));
 
-        $response = $this->connection->put(
+        $response = $this->getConnection()->put(
             self::getCustomMethodElementPath(
                 $method_name, $this->getId(), $prefix_options, $query_options
             ), $body,
@@ -596,8 +613,7 @@ abstract class Base
         return 204 === $response->getStatusCode() || 200 === $response->getStatusCode();
     }
 
-    public static function collectionPut($method_name, array $params = array(),
-                                         array $body = array(), Connection $connection)
+    public static function collectionPut($method_name, array $params = array(), array $body = array(), Connection $connection = null)
     {
         list($prefix_options, $query_options) = self::splitParams($params);
         $body = self::getFormat()->encode(array('request' => $body));
@@ -617,7 +633,7 @@ abstract class Base
     {
         list($prefix_options, $query_options) = self::splitParams($params);
 
-        $response = $this->connection->delete(
+        $response = $this->getConnection()->delete(
             self::getCustomMethodElementPath(
                 $method_name, $this->getId(), $prefix_options, $query_options
             ),
@@ -627,8 +643,7 @@ abstract class Base
         return 200 === $response->getStatusCode();
     }
 
-    public static function collectionDelete($method_name, array $params = array(),
-                                            Connection $connection)
+    public static function collectionDelete($method_name, array $params = array(), Connection $connection = null)
     {
         list($prefix_options, $query_options) = self::splitParams($params);
 
@@ -644,7 +659,7 @@ abstract class Base
     {
         list($prefix_options, $query_options) = self::splitParams($params);
 
-        $response = $this->connection->head(
+        $response = $this->getConnection()->head(
             self::getCustomMethodElementPath(
                 $method_name, $this->getId(), $prefix_options, $query_options,
                 array('accept' => self::getFormat()->getMimeType())
@@ -654,8 +669,7 @@ abstract class Base
         return 200 === $response->getStatusCode();
     }
 
-    public static function collectionHead($method_name, array $params = array(),
-                                          Connection $connection)
+    public static function collectionHead($method_name, array $params = array(), Connection $connection = null)
     {
         list($prefix_options, $query_options) = self::splitParams($params);
 
@@ -791,7 +805,7 @@ abstract class Base
         );
     }
 
-    protected static function findEvery(array $args = array(), Connection $connection)
+    protected static function findEvery(array $args = array(), Connection $connection = null)
     {
         try
         {
@@ -828,7 +842,7 @@ abstract class Base
         }
     }
 
-    protected static function findOne(array $args = array(), Connection $connection)
+    protected static function findOne(array $args = array(), Connection $connection = null)
     {
         try
         {
@@ -856,7 +870,7 @@ abstract class Base
         }
     }
 
-    protected static function findSingle($id, array $args = array(), Connection $connection)
+    protected static function findSingle($id, array $args = array(), Connection $connection = null)
     {
         try
         {
@@ -884,7 +898,7 @@ abstract class Base
         $prepared_attrs = array();
         $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
-        $response = $this->connection->post($this->getCollectionPath(),
+        $response = $this->getConnection()->post($this->getCollectionPath(),
             self::getFormat()->encode($prepared_attrs), array(
                 'accept'        => self::getFormat()->getMimeType(),
                 'content-type'  => self::getFormat()->getMimeType()
@@ -912,7 +926,7 @@ abstract class Base
         $prepared_attrs = array();
         $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
-        $response = $this->connection->put($this->getElementPath($this->getId()),
+        $response = $this->getConnection()->put($this->getElementPath($this->getId()),
             self::getFormat()->encode($prepared_attrs), array(
                 'accept' => self::getFormat()->getMimeType(),
                 'content-type' => self::getFormat()->getMimeType()
@@ -1008,7 +1022,7 @@ abstract class Base
      */
     protected static function instantiateRecord(array $attrs,
                                                 array $prefix_options = array(),
-                                                Connection $connection)
+                                                Connection $connection = null)
     {
         $class  = get_called_class();
         $record = new $class($attrs, $connection);
@@ -1027,7 +1041,7 @@ abstract class Base
      */
     protected static function instantiateCollection(array $attrs_list,
                                                     array $prefix_options = array(),
-                                                    Connection $connection)
+                                                    Connection $connection = null)
     {
         $list = array();
         foreach ($attrs_list as $attrs)

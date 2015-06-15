@@ -4,7 +4,7 @@ namespace ActiveResource\Connections;
 use cdyweb\http\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 
-class GuzzleConnection implements Connection {
+class GuzzleConnection extends Connection {
 
     /**
      * @var \cdyweb\http\psr\Uri
@@ -19,21 +19,6 @@ class GuzzleConnection implements Connection {
      * @var \cdyweb\http\Adapter
      */
     protected $client;
-
-    /**
-     * Connection constructor
-     *
-     * @param   string $site   base site URL
-     */
-    public function __construct($site)
-    {
-        if (null === $site || empty($site))
-        {
-            throw new \InvalidArgumentException('Missing site URI');
-        }
-
-        $this->setSite($site);
-    }
 
     /**
      * @param \cdyweb\http\Adapter $client

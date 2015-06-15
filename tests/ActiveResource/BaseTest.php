@@ -11,21 +11,21 @@
 require_once 'Person.php';
 require_once 'TodoList.php';
 
-use ActiveResource\Connections\GuzzleConnection as Connection;
+use ActiveResource\Connections\GuzzleConnection;
 
 define('BASE_URL', 'https://some.rest.site.com/base/path');
 
 
 class BaseTest extends PHPUnit_Framework_TestCase
 {
-    private function getConnection()
-    {
-        return new Connection(BASE_URL);
+
+    public function setUp() {
+        GuzzleConnection::init(BASE_URL);
     }
 
     private function getMockedConnection($method, $url, $body, $response_code, $headers=[])
     {
-        $connection = new Connection($url);
+        $connection = new GuzzleConnection($url);
         $mockedClient = $this->getMock('\cdyweb\http\Adapter');
         $connection->setClient($mockedClient);
 
@@ -67,7 +67,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testConstruct($id, $user_id, $name)
     {
-        $todo = new TodoList(array('id' => $id, 'user_id' => $user_id, 'name' => $name), $this->getConnection());
+        $todo = new TodoList(array('id' => $id, 'user_id' => $user_id, 'name' => $name));
 
         $this->assertEquals($id, $todo->getId());
         $this->assertEquals($user_id, $todo->user_id);
@@ -79,7 +79,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testInit($id, $user_id, $name)
     {
-        $todo = TodoList::init(array('id' => $id, 'user_id' => $user_id, 'name' => $name), $this->getConnection());
+        $todo = TodoList::init(array('id' => $id, 'user_id' => $user_id, 'name' => $name));
 
         $this->assertEquals($id, $todo->getId());
         $this->assertEquals($user_id, $todo->user_id);
@@ -91,7 +91,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testLoad($id, $user_id, $name)
     {
-        $todo = new TodoList(array(), $this->getConnection());
+        $todo = new TodoList(array());
         $todo->load(array('id' => $id, 'user_id' => $user_id, 'name' => $name));
 
         $this->assertEquals($id, $todo->getId());
@@ -309,8 +309,6 @@ class BaseTest extends PHPUnit_Framework_TestCase
 
     public function findDataProvider()
     {
-        $connection = $this->getConnection();
-
         $person_response = json_encode(['person'=>['id'=>5, 'name'=>'Mary']]);
         $people_response = json_encode(['people'=>[['id'=>12, 'name'=>'John'],['id'=>5, 'name'=>'Mary'],['id'=>104, 'name'=>'David']]]);
         $managers_response = json_encode(['people'=>[['id'=>104, 'name'=>'David'],['id'=>5, 'name'=>'Mary']]]);
@@ -320,22 +318,22 @@ class BaseTest extends PHPUnit_Framework_TestCase
                 $person_response
             ,array(1)
             ,BASE_URL . '/people/1.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'), $connection)
+            ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $person_response
             ,1
             ,BASE_URL . '/people/1.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'), $connection)
+            ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $people_response
             ,array('all')
             ,BASE_URL . '/people.xml'
             ,array(
-                new Person(array('id' => 12, 'name' => 'John'), $connection),
-                new Person(array('id' => 5, 'name' => 'Mary'), $connection),
-                new Person(array('id' => 104, 'name' => 'David'), $connection)
+                new Person(array('id' => 12, 'name' => 'John')),
+                new Person(array('id' => 5, 'name' => 'Mary')),
+                new Person(array('id' => 104, 'name' => 'David'))
             )
             ),
             array(
@@ -343,9 +341,9 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ,'all'
             ,BASE_URL . '/people.xml'
             ,array(
-                new Person(array('id' => 12, 'name' => 'John'), $connection),
-                new Person(array('id' => 5, 'name' => 'Mary'), $connection),
-                new Person(array('id' => 104, 'name' => 'David'), $connection)
+                new Person(array('id' => 12, 'name' => 'John')),
+                new Person(array('id' => 5, 'name' => 'Mary')),
+                new Person(array('id' => 104, 'name' => 'David'))
             )
             ),
             array(
@@ -353,58 +351,58 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ,array('all', 'params' => array('title' => 'CEO'))
             ,BASE_URL . '/people.xml?title=CEO'
             ,array(
-                new Person(array('id' => 104, 'name' => 'David'), $connection),
-                new Person(array('id' => 5, 'name' => 'Mary'), $connection)
+                new Person(array('id' => 104, 'name' => 'David')),
+                new Person(array('id' => 5, 'name' => 'Mary'))
             )
             ),
             array(
                 $managers_response
             ,array('first', 'from' => 'managers')
             ,BASE_URL . '/people/managers.xml'
-            ,new Person(array('id' => 104, 'name' => 'David'), $connection),
+            ,new Person(array('id' => 104, 'name' => 'David')),
             ),
             array(
                 $managers_response
             ,array('last', 'from' => 'managers')
             ,BASE_URL . '/people/managers.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'), $connection),
+            ,new Person(array('id' => 5, 'name' => 'Mary')),
             ),
             array(
                 $people_response
             ,array('all', 'from' => '/companies/1/people.xml')
             ,BASE_URL . '/companies/1/people.xml'
             ,array(
-                new Person(array('id' => 12, 'name' => 'John'), $connection),
-                new Person(array('id' => 5, 'name' => 'Mary'), $connection),
-                new Person(array('id' => 104, 'name' => 'David'), $connection)
+                new Person(array('id' => 12, 'name' => 'John')),
+                new Person(array('id' => 5, 'name' => 'Mary')),
+                new Person(array('id' => 104, 'name' => 'David'))
             )
             ),
             array(
                 $person_response
             ,array('one', 'from' => 'leader')
             ,BASE_URL . '/people/leader.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'), $connection)
+            ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $managers_response
             ,array('all', 'from' => 'developers', 'params' => array('language' => 'php'))
             ,BASE_URL . '/people/developers.xml?language=php'
             ,array(
-                new Person(array('id' => 104, 'name' => 'David'), $connection),
-                new Person(array('id' => 5, 'name' => 'Mary'), $connection)
+                new Person(array('id' => 104, 'name' => 'David')),
+                new Person(array('id' => 5, 'name' => 'Mary'))
             )
             ),
             array(
                 $person_response
             ,array('one', 'from' => '/companies/1/manager.xml')
             ,BASE_URL . '/companies/1/manager.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'), $connection)
+            ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $person_response
             ,array(1, 'params' => array('project_id' => 2))
             ,BASE_URL . '/projects/2/people/1.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'), $connection)
+            ,new Person(array('id' => 5, 'name' => 'Mary'))
             )
         );
     }
