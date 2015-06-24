@@ -32,7 +32,12 @@ class Errors
      */
     public function add($key, $value)
     {
-        $this->messages[$key][] = (string)$value;
+        if (!is_array($value)) {
+            $value = array($value);
+        }
+        foreach ($value as $item) {
+            $this->messages[$key][] = (string)$item;
+        }
     }
 
     /**
