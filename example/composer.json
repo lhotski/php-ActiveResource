@@ -1,7 +1,6 @@
 {
     "require": {
         "cdyweb/php-active-resource" : "*",
-        "cdyweb/http-adapter": "*",
         "guzzlehttp/guzzle": "~3.0"
     }
 }
