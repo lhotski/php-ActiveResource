@@ -764,7 +764,7 @@ abstract class Base
     protected static function getElementPath($id, array $prefix_options = array(),
                                              array $query_options = array())
     {
-        return sprintf('%s%s/%d.%s%s',
+        return sprintf('%s%s/%s.%s%s',
             self::getPrefix($prefix_options),
             self::getCollectionName(),
             $id,
@@ -786,7 +786,7 @@ abstract class Base
                                                          array $prefix_options = array(),
                                                          array $query_options = array())
     {
-        return sprintf('%s%s/%d/%s.%s%s',
+        return sprintf('%s%s/%s/%s.%s%s',
             self::getPrefix($prefix_options),
             self::getCollectionName(),
             $id,
@@ -995,7 +995,7 @@ abstract class Base
         foreach ($options as $name => $value)
         {
             $collection = Inflector::pluralize(strtr($name, array('_id' => '')));
-            $prefix .= sprintf('%s/%d/', $collection, $value);
+            $prefix .= sprintf('%s/%s/', $collection, $value);
         }
 
         return $prefix;
