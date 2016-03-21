@@ -563,10 +563,10 @@ abstract class Base
         return $attrs[end($keys)];
     }
 
-    public function elementPost($method_name, array $params = array(), array $body = array())
+    public function elementPost($method_name, array $params = array(), array $body = array(), $obj_name='request')
     {
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array($method_name => $body));
+        $body = self::getFormat()->encode(array($obj_name => $body));
 
         if ($this->isNew())
         {
@@ -594,14 +594,14 @@ abstract class Base
         return 201 === $response->getStatusCode();
     }
 
-    public static function collectionPost($method_name, array $params = array(), array $body = array(), Connection $connection = null)
+    public static function collectionPost($method_name, array $params = array(), array $body = array(), Connection $connection = null, $obj_name='request')
     {
         if (null === $connection) {
             $connection = static::getDefaultConnection();
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array($method_name => $body));
+        $body = self::getFormat()->encode(array($obj_name => $body));
 
         $response = $connection->post(
             self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body,
@@ -614,10 +614,10 @@ abstract class Base
         return 201 === $response->getStatusCode();
     }
 
-    public function elementPut($method_name, array $params = array(), array $body = array())
+    public function elementPut($method_name, array $params = array(), array $body = array(), $obj_name='request')
     {
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array($method_name => $body));
+        $body = self::getFormat()->encode(array($obj_name => $body));
 
         $response = $this->getConnection()->put(
             self::getCustomMethodElementPath(
@@ -632,14 +632,14 @@ abstract class Base
         return 204 === $response->getStatusCode() || 200 === $response->getStatusCode();
     }
 
-    public static function collectionPut($method_name, array $params = array(), array $body = array(), Connection $connection = null)
+    public static function collectionPut($method_name, array $params = array(), array $body = array(), Connection $connection = null, $obj_name='request')
     {
         if (null === $connection) {
             $connection = static::getDefaultConnection();
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array($method_name => $body));
+        $body = self::getFormat()->encode(array($obj_name => $body));
 
         $response = $connection->put(
             self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body,
