@@ -510,7 +510,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             array(
                 200
                 ,json_encode(array('people'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
-                ,json_encode(array('request'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
+                ,json_encode(array('poll'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
                 ,BASE_URL . '/people/3/poll.json?filter=%2A&sex=man'
                 ,3
                 ,'poll'
@@ -521,7 +521,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             array(
                 201
                 ,json_encode(array('people'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
-                ,json_encode(array('request'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
+                ,json_encode(array('register'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
                 ,BASE_URL . '/projects/22/people/25/register.json?title=CEO'
                 ,25
                 ,'register'
@@ -558,7 +558,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 204
-                ,json_encode(array('request'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
+                ,json_encode(array('poll'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
                 ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
                 ,BASE_URL . '/people/poll.json?filter=%2A&sex=man'
                 ,'poll'
@@ -568,7 +568,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 201
-                ,json_encode(array('request'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
+                ,json_encode(array('register'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
                 ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
                 ,BASE_URL . '/projects/22/people/register.json?title=CEO'
                 ,'register'

@@ -566,7 +566,7 @@ abstract class Base
     public function elementPost($method_name, array $params = array(), array $body = array())
     {
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array('request' => $body));
+        $body = self::getFormat()->encode(array($method_name => $body));
 
         if ($this->isNew())
         {
@@ -601,7 +601,7 @@ abstract class Base
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array('request' => $body));
+        $body = self::getFormat()->encode(array($method_name => $body));
 
         $response = $connection->post(
             self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body,
@@ -617,7 +617,7 @@ abstract class Base
     public function elementPut($method_name, array $params = array(), array $body = array())
     {
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array('request' => $body));
+        $body = self::getFormat()->encode(array($method_name => $body));
 
         $response = $this->getConnection()->put(
             self::getCustomMethodElementPath(
@@ -639,7 +639,7 @@ abstract class Base
         }
 
         list($prefix_options, $query_options) = self::splitParams($params);
-        $body = self::getFormat()->encode(array('request' => $body));
+        $body = self::getFormat()->encode(array($method_name => $body));
 
         $response = $connection->put(
             self::getCustomMethodCollectionPath($method_name, $prefix_options, $query_options), $body,
