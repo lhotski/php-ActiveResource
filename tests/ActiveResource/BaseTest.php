@@ -23,24 +23,30 @@ class BaseTest extends PHPUnit_Framework_TestCase
         GuzzleConnection::init(BASE_URL);
     }
 
-    private function getMockedConnection($method, $url, $body, $response_code, $headers=array())
+    private function getMockedConnection($method, $url, $response_body, $response_code, $respone_headers=array(), $request_headers=array(),  $request_body='')
     {
-        $connection = new GuzzleConnection($url);
+        $connection = new GuzzleConnection(BASE_URL);
         $mockedClient = $this->getMock('\cdyweb\http\Adapter');
         $connection->setClient($mockedClient);
 
-        $response = (new \cdyweb\http\psr\Response($response_code, $headers, $body));
+        $response = (new \cdyweb\http\psr\Response($response_code, $respone_headers, $response_body));
 
         if (substr($response_code,0,1)==4) {
             $mockedClient
                 ->expects($this->once())
                 ->method('send')
-                ->willThrowException(new \cdyweb\http\Exception\RequestException('not found', new \cdyweb\http\psr\Request($method, $url, $headers), $response));
+                ->willThrowException(new \cdyweb\http\Exception\RequestException('not found', new \cdyweb\http\psr\Request($method, $url, $request_headers, $request_body), $response));
         } else {
             $mockedClient
                 ->expects($this->once())
                 ->method('send')
+                ->with(1)
                 ->will($this->returnValue($response));
+            $mockedClient
+                ->expects($this->once())
+                ->method('createRequest')
+                ->with($method, $url, $request_headers, $request_body)
+                ->will($this->returnValue(1));
         }
 
         return $connection;
@@ -104,27 +110,27 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,23
-            ,array()
-            ,array()
-            ,BASE_URL . '/todo_lists/23.xml'
-            ,true
+                ,23
+                ,array()
+                ,array()
+                ,BASE_URL . '/todo_lists/23.json'
+                ,true
             ),
             array(
                 410
-            ,2
-            ,array('project_id' => 4)
-            ,array('name' => 'Ivan', 'age' => 21)
-            ,BASE_URL . '/projects/4/todo_lists/2.xml?name=Ivan&age=21'
-            ,false
+                ,2
+                ,array('project_id' => 4)
+                ,array('name' => 'Ivan', 'age' => 21)
+                ,BASE_URL . '/projects/4/todo_lists/2.json?name=Ivan&age=21'
+                ,false
             ),
             array(
                 404
-            ,102
-            ,array('project_id' => 4, 'person_id' => 101)
-            ,array('name' => 'Ivan', 'age' => 21)
-            ,BASE_URL . '/projects/4/people/101/todo_lists/102.xml?name=Ivan&age=21'
-            ,false
+                ,102
+                ,array('project_id' => 4, 'person_id' => 101)
+                ,array('name' => 'Ivan', 'age' => 21)
+                ,BASE_URL . '/projects/4/people/101/todo_lists/102.json?name=Ivan&age=21'
+                ,false
             ),
         );
     }
@@ -142,24 +148,24 @@ class BaseTest extends PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                202,
-                json_encode(array('todo_list'=>array('id'=>5, 'user_id'=>1, 'name'=>'LIST')))
-            ,5
-            ,1
-            ,'LIST'
-            ,array()
-            ,array()
-            ,BASE_URL . '/todo_lists/new.xml'
+                202
+                ,json_encode(array('todo_list'=>array('id'=>5, 'user_id'=>1, 'name'=>'LIST')))
+                ,5
+                ,1
+                ,'LIST'
+                ,array()
+                ,array()
+                ,BASE_URL . '/todo_lists/new.json'
             ),
             array(
-                200,
-                json_encode(array('todo_list'=>array('id'=>1, 'user_id'=>2, 'name'=>'ToDo list')))
-            ,1
-            ,2
-            ,'ToDo list'
-            ,array('project_id' => 4, 'person_id' => 101)
-            ,array('name' => 'Ivan', 'age' => 21)
-            ,BASE_URL . '/projects/4/people/101/todo_lists/new.xml?name=Ivan&age=21'
+                200
+                ,json_encode(array('todo_list'=>array('id'=>1, 'user_id'=>2, 'name'=>'ToDo list')))
+                ,1
+                ,2
+                ,'ToDo list'
+                ,array('project_id' => 4, 'person_id' => 101)
+                ,array('name' => 'Ivan', 'age' => 21)
+                ,BASE_URL . '/projects/4/people/101/todo_lists/new.json?name=Ivan&age=21'
             ),
         );
     }
@@ -201,25 +207,29 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 201
-            ,json_encode(array('todo_list'=>array('user_id'=>41, 'name'=>'everzet', 'is-bool'=>true)))
-            , array('Location'=>array(BASE_URL.'/todo_list/5'))
-            ,BASE_URL . '/todo_lists.xml'
-            ,41
-            ,'everzet'
-            ,true
-            ,5
-            ,true
+                ,json_encode(array('todo_list'=>array('user_id'=>'41', 'name'=>'everzet', 'is_bool'=>true)))
+                , array('Location'=>array(BASE_URL.'/todo_list/5'))
+                ,json_encode(array('todo_list'=>array('user_id'=>'41', 'name'=>'everzet', 'is_bool'=>true)))
+                , array('accept'=>'application/json','content-type'=>'application/json')
+                ,'/test/123/create'
+                ,41
+                ,'everzet'
+                ,true
+                ,5
+                ,true
             ),
             array(
                 202
-            ,json_encode(array('todo_list'=>array('user_id'=>55, 'name'=>'Ivan', 'is-bool'=>false)))
-            , array('Location'=>array())
-            ,BASE_URL . '/todo_lists.xml'
-            ,55
-            ,'Ivan'
-            ,false
-            ,null
-            ,false
+                ,json_encode(array('todo_list'=>array('user_id'=>'55', 'name'=>'Ivan', 'is_bool'=>false)))
+                , array('Location'=>array())
+                ,json_encode(array('todo_list'=>array('user_id'=>'55', 'name'=>'Ivan', 'is_bool'=>false)))
+                , array('accept'=>'application/json','content-type'=>'application/json')
+                ,'/todo_lists.json'
+                ,55
+                ,'Ivan'
+                ,false
+                ,null
+                ,false
             ),
         );
     }
@@ -227,13 +237,13 @@ class BaseTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider createDataProvider
      */
-    public function testCreate($response, $body, $headers, $url, $user_id, $name, $is_bool, $id, $answer)
+    public function testCreate($response, $response_body, $response_headers,  $request_body, $request_headers, $path, $user_id, $name, $is_bool, $id, $answer)
     {
-        $connection = $this->getMockedConnection('post', $url, $body, $response, $headers);
+        $connection = $this->getMockedConnection('post', BASE_URL.$path, $response_body, $response, $response_headers, $request_headers, $request_body);
 
         $list = new TodoList(array('user_id' => $user_id, 'name' => $name, 'is_bool' => $is_bool), $connection);
 
-        $this->assertEquals($answer, $list->save());
+        $this->assertEquals($answer, $list->save($path));
         $this->assertEquals($id, $list->getId());
     }
 
@@ -242,35 +252,39 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 204
-            ,json_encode(array('todo_list'=>array('user_id'=>41, 'name'=>'everzet', 'is-bool'=>true)))
-            ,array('Location'=> array(BASE_URL.'/todo_lists/5.xml'))
-            ,BASE_URL . '/todo_lists/5.xml'
-            ,41
-            ,'everzet'
-            ,true
-            ,5
-            ,true
-            ),
+                ,json_encode(array('todo_list'=>array('user_id'=>'41', 'name'=>'everzet', 'is_bool'=>true)))
+                ,json_encode(array('todo_list'=>array('user_id'=>'41', 'name'=>'everzet', 'is_bool'=>true)))
+                ,array('Location'=> array(BASE_URL.'/todo_lists/5.json'))
+                ,array('accept'=>'application/json','content-type'=>'application/json')
+                ,BASE_URL . '/todo_lists/5.json'
+                ,41
+                ,'everzet'
+                ,true
+                ,5
+                ,true
+                ),
             array(
                 202
-            ,json_encode(array('todo_list'=>array('user_id'=>55, 'name'=>'Ivan', 'is-bool'=>false)))
-            ,array('Location'=> array(BASE_URL.'/todo_lists/5.xml'))
-            ,BASE_URL . '/todo_lists/10.xml'
-            ,55
-            ,'Ivan'
-            ,false
-            ,10
-            ,false
-            ),
+                ,json_encode(array('todo_list'=>array('user_id'=>'55', 'name'=>'Ivan', 'is_bool'=>false)))
+                ,json_encode(array('todo_list'=>array('user_id'=>'55', 'name'=>'Ivan', 'is_bool'=>false)))
+                ,array('Location'=> array(BASE_URL.'/todo_lists/5.json'))
+                , array('accept'=>'application/json','content-type'=>'application/json')
+                ,BASE_URL . '/todo_lists/10.json'
+                ,55
+                ,'Ivan'
+                ,false
+                ,10
+                ,false
+                ),
         );
     }
 
     /**
      * @dataProvider updateDataProvider
      */
-    public function testUpdate($response, $body, $headers, $url, $user_id, $name, $is_bool, $id, $answer)
+    public function testUpdate($response, $response_body, $request_body, $response_headers, $request_headers, $url, $user_id, $name, $is_bool, $id, $answer)
     {
-        $connection = $this->getMockedConnection('put', $url, $body, $response, $headers);
+        $connection = $this->getMockedConnection('put', $url, $response_body, $response, $response_headers, $request_headers, $request_body);
 
         $list = new TodoList(array('id' => $id, 'user_id' => $user_id, 'name' => $name, 'is_bool' => $is_bool), $connection);
 
@@ -283,13 +297,13 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,BASE_URL . '/todo_lists/5.xml'
+            ,BASE_URL . '/todo_lists/5.json'
             ,5
             ,true
             ),
             array(
                 202
-            ,BASE_URL . '/todo_lists/10.xml'
+            ,BASE_URL . '/todo_lists/10.json'
             ,10
             ,false
             ),
@@ -316,61 +330,61 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 $person_response
-            ,array(1)
-            ,BASE_URL . '/people/1.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'))
+                ,array(1)
+                ,BASE_URL . '/people/1.json'
+                ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $person_response
-            ,1
-            ,BASE_URL . '/people/1.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary'))
+                ,1
+                ,BASE_URL . '/people/1.json'
+                ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $people_response
-            ,array('all')
-            ,BASE_URL . '/people.xml'
-            ,array(
-                new Person(array('id' => 12, 'name' => 'John')),
-                new Person(array('id' => 5, 'name' => 'Mary')),
-                new Person(array('id' => 104, 'name' => 'David'))
-            )
+                ,array('all')
+                ,BASE_URL . '/people.json'
+                ,array(
+                    new Person(array('id' => 12, 'name' => 'John')),
+                    new Person(array('id' => 5, 'name' => 'Mary')),
+                    new Person(array('id' => 104, 'name' => 'David'))
+                )
             ),
             array(
                 $people_response
-            ,'all'
-            ,BASE_URL . '/people.xml'
-            ,array(
-                new Person(array('id' => 12, 'name' => 'John')),
-                new Person(array('id' => 5, 'name' => 'Mary')),
-                new Person(array('id' => 104, 'name' => 'David'))
-            )
+                ,'all'
+                ,BASE_URL . '/people.json'
+                ,array(
+                    new Person(array('id' => 12, 'name' => 'John')),
+                    new Person(array('id' => 5, 'name' => 'Mary')),
+                    new Person(array('id' => 104, 'name' => 'David'))
+                )
             ),
             array(
                 $managers_response
-            ,array('all', 'params' => array('title' => 'CEO'))
-            ,BASE_URL . '/people.xml?title=CEO'
-            ,array(
-                new Person(array('id' => 104, 'name' => 'David')),
-                new Person(array('id' => 5, 'name' => 'Mary'))
-            )
+                ,array('all', 'params' => array('title' => 'CEO'))
+                ,BASE_URL . '/people.json?title=CEO'
+                ,array(
+                    new Person(array('id' => 104, 'name' => 'David')),
+                    new Person(array('id' => 5, 'name' => 'Mary'))
+                )
             ),
             array(
                 $managers_response
-            ,array('first', 'from' => 'managers')
-            ,BASE_URL . '/people/managers.xml'
-            ,new Person(array('id' => 104, 'name' => 'David')),
-            ),
+                ,array('first', 'from' => 'managers')
+                ,BASE_URL . '/people/managers.json'
+                ,new Person(array('id' => 104, 'name' => 'David')),
+                ),
             array(
                 $managers_response
-            ,array('last', 'from' => 'managers')
-            ,BASE_URL . '/people/managers.xml'
-            ,new Person(array('id' => 5, 'name' => 'Mary')),
+                ,array('last', 'from' => 'managers')
+                ,BASE_URL . '/people/managers.json'
+                ,new Person(array('id' => 5, 'name' => 'Mary')),
             ),
             array(
                 $people_response
-            ,array('all', 'from' => '/companies/1/people.xml')
-            ,BASE_URL . '/companies/1/people.xml'
+            ,array('all', 'from' => '/companies/1/people.json')
+            ,BASE_URL . '/companies/1/people.json'
             ,array(
                 new Person(array('id' => 12, 'name' => 'John')),
                 new Person(array('id' => 5, 'name' => 'Mary')),
@@ -380,13 +394,13 @@ class BaseTest extends PHPUnit_Framework_TestCase
             array(
                 $person_response
             ,array('one', 'from' => 'leader')
-            ,BASE_URL . '/people/leader.xml'
+            ,BASE_URL . '/people/leader.json'
             ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $managers_response
             ,array('all', 'from' => 'developers', 'params' => array('language' => 'php'))
-            ,BASE_URL . '/people/developers.xml?language=php'
+            ,BASE_URL . '/people/developers.json?language=php'
             ,array(
                 new Person(array('id' => 104, 'name' => 'David')),
                 new Person(array('id' => 5, 'name' => 'Mary'))
@@ -394,14 +408,14 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ),
             array(
                 $person_response
-            ,array('one', 'from' => '/companies/1/manager.xml')
-            ,BASE_URL . '/companies/1/manager.xml'
+            ,array('one', 'from' => '/companies/1/manager.json')
+            ,BASE_URL . '/companies/1/manager.json'
             ,new Person(array('id' => 5, 'name' => 'Mary'))
             ),
             array(
                 $person_response
             ,array(1, 'params' => array('project_id' => 2))
-            ,BASE_URL . '/projects/2/people/1.xml'
+            ,BASE_URL . '/projects/2/people/1.json'
             ,new Person(array('id' => 5, 'name' => 'Mary'))
             )
         );
@@ -412,7 +426,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testFind($body, $criteria, $url, $etalon_data)
     {
-        $connection = $this->getMockedConnection('get', $url, $body, 200);
+        $connection = $this->getMockedConnection('get', $url, $body, 200, array(), array('accept'=>'application/json'));
         if (is_array($etalon_data)) foreach ($etalon_data as $obj) $obj->setConnection($connection);
         else $etalon_data->setConnection($connection);
         $response_data = Person::find($criteria, $connection);
@@ -428,7 +442,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,'positions'
             ,array()
-            ,BASE_URL . '/people/positions.xml'
+            ,BASE_URL . '/people/positions.json'
             ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
             ),
             array(
@@ -436,7 +450,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ,json_encode(array('person'=>array('id'=>22, 'name'=>'John')))
             ,'managers'
             ,array('title' => 'CEO', 'project_id' => 22)
-            ,BASE_URL . '/projects/22/people/managers.xml?title=CEO'
+            ,BASE_URL . '/projects/22/people/managers.json?title=CEO'
             ,array('id' => 22, 'name' => 'John')
             ),
         );
@@ -447,7 +461,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testCollectionGet($response, $body, $method, $params, $url, $etalon_data)
     {
-        $connection = $this->getMockedConnection('get', $url, $body, $response);
+        $connection = $this->getMockedConnection('get', $url, $body, $response, array(), array('accept'=>'application/json'));
         $response_data = Person::collectionGet($method, $params, $connection);
 
         $this->assertEquals($etalon_data, $response_data);
@@ -461,7 +475,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
             ,'positions'
             ,array()
-            ,BASE_URL . '/people/11/positions.xml'
+            ,BASE_URL . '/people/11/positions.json'
             ,array('id' => 11)
             ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
             ),
@@ -470,7 +484,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             ,json_encode(array('person'=>array('id'=>22, 'name'=>'John')))
             ,'managers'
             ,array('title' => 'CEO', 'project_id' => 22)
-            ,BASE_URL . '/projects/22/people/new/managers.xml?title=CEO'
+            ,BASE_URL . '/projects/22/people/new/managers.json?title=CEO'
             ,array()
             ,array('id' => 22, 'name' => 'John')
             ),
@@ -482,7 +496,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testElementGet($response, $body, $method, $params, $url, array $cur_data, array $etalon_data)
     {
-        $connection = $this->getMockedConnection('get', $url, $body, $response);
+        $connection = $this->getMockedConnection('get', $url, $body, $response, array(), array('accept'=>'application/json'));
 
         $person = new Person($cur_data, $connection);
         $response_data = $person->elementGet($method, $params);
@@ -495,23 +509,25 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
-            ,BASE_URL . '/people/3/poll.xml?filter=%2A&sex=man'
-            ,3
-            ,'poll'
-            ,array('filter' => '*', 'sex' => 'man')
-            ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
-            ,200
+                ,json_encode(array('people'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
+                ,json_encode(array('request'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
+                ,BASE_URL . '/people/3/poll.json?filter=%2A&sex=man'
+                ,3
+                ,'poll'
+                ,array('filter' => '*', 'sex' => 'man')
+                ,array(array('id' => '15', 'name' => 'David'), array('id' => '22', 'name' => 'John'))
+                ,200
             ),
             array(
-                201,
-                json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
-            ,BASE_URL . '/projects/22/people/25/register.xml?title=CEO'
-            ,25
-            ,'register'
-            ,array('project_id' => 22, 'title' => 'CEO')
-            ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
-            ,201
+                201
+                ,json_encode(array('people'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
+                ,json_encode(array('request'=>array(array('id'=>'15', 'name'=>'David'),array('id'=>'22', 'name'=>'John'))))
+                ,BASE_URL . '/projects/22/people/25/register.json?title=CEO'
+                ,25
+                ,'register'
+                ,array('project_id' => '22', 'title' => 'CEO')
+                ,array(array('id' => '15', 'name' => 'David'), array('id' => '22', 'name' => 'John'))
+                ,201
             ),
         );
     }
@@ -519,19 +535,20 @@ class BaseTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider elementPostAndPutDataProvider
      */
-    public function testElementPost($response, $sent_body, $url, $id, $method, array $params, array $data, $return)
+    public function testElementPost($response, $response_body, $request_body, $url, $id, $method, array $params, array $data, $return)
     {
-        $connection = $this->getMockedConnection('post', $url, $sent_body, $response);
+        $connection = $this->getMockedConnection('post', $url, $response_body, $response, array(), array('accept'=>'application/json', 'content-type'=>'application/json'), $request_body);
         $person = new Person(array('id' => $id), $connection);
-        $this->assertEquals((201 === $return), $person->elementPost($method, $params, $data));
+        $result = $person->elementPost($method, $params, $data);
+        $this->assertEquals((201 === $return), $result);
     }
 
     /**
      * @dataProvider elementPostAndPutDataProvider
      */
-    public function testElementPut($response, $sent_body, $url, $id, $method, array $params, array $data, $return)
+    public function testElementPut($response, $response_body, $request_body, $url, $id, $method, array $params, array $data, $return)
     {
-        $connection = $this->getMockedConnection('put', $url, $sent_body, $response);
+        $connection = $this->getMockedConnection('put', $url, $response_body, $response, array(), array('accept'=>'application/json', 'content-type'=>'application/json'), $request_body);
         $person = new Person(array('id' => $id), $connection);
         $this->assertEquals((200 === $return), $person->elementPut($method, $params, $data));
     }
@@ -541,21 +558,23 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 204
-            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
-            ,BASE_URL . '/people/poll.xml?filter=%2A&sex=man'
-            ,'poll'
-            ,array('filter' => '*', 'sex' => 'man')
-            ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
-            ,204
+                ,json_encode(array('request'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
+                ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
+                ,BASE_URL . '/people/poll.json?filter=%2A&sex=man'
+                ,'poll'
+                ,array('filter' => '*', 'sex' => 'man')
+                ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
+                ,204
             ),
             array(
                 201
-            ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
-            ,BASE_URL . '/projects/22/people/register.xml?title=CEO'
-            ,'register'
-            ,array('project_id' => 22, 'title' => 'CEO')
-            ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
-            ,201
+                ,json_encode(array('request'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
+                ,json_encode(array('people'=>array(array('id'=>15, 'name'=>'David'),array('id'=>22, 'name'=>'John'))))
+                ,BASE_URL . '/projects/22/people/register.json?title=CEO'
+                ,'register'
+                ,array('project_id' => 22, 'title' => 'CEO')
+                ,array(array('id' => 15, 'name' => 'David'), array('id' => 22, 'name' => 'John'))
+                ,201
             ),
         );
     }
@@ -563,18 +582,18 @@ class BaseTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider collectionPostAndPutDataProvider
      */
-    public function testCollectionPost($response, $sent_body, $url, $method, array $params, array $data, $return)
+    public function testCollectionPost($response, $request_body, $response_body, $url, $method, array $params, array $data, $return)
     {
-        $connection = $this->getMockedConnection('post', $url, $sent_body, $response);
+        $connection = $this->getMockedConnection('post', $url, $response_body, $response, array(), array('accept'=>'application/json', 'content-type'=>'application/json'), $request_body);
         $this->assertEquals((201 === $return), Person::collectionPost($method, $params, $data, $connection));
     }
 
     /**
      * @dataProvider collectionPostAndPutDataProvider
      */
-    public function testCollectionPut($response, $sent_body, $url, $method, array $params, array $data, $return)
+    public function testCollectionPut($response, $request_body, $response_body, $url, $method, array $params, array $data, $return)
     {
-        $connection = $this->getMockedConnection('put', $url, $sent_body, $response);
+        $connection = $this->getMockedConnection('put', $url, $response_body, $response, array(), array('accept'=>'application/json', 'content-type'=>'application/json'), $request_body);
         $this->assertEquals((204 === $return), Person::collectionPut($method, $params, $data, $connection));
     }
 
@@ -583,19 +602,19 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,BASE_URL . '/people/3/fire.xml?filter=%2A&sex=man'
-            ,3
-            ,'fire'
-            ,array('filter' => '*', 'sex' => 'man')
-            ,true
+                ,BASE_URL . '/people/3/fire.json?filter=%2A&sex=man'
+                ,3
+                ,'fire'
+                ,array('filter' => '*', 'sex' => 'man')
+                ,true
             ),
             array(
                 201
-            ,BASE_URL . '/projects/22/people/25/delete.xml?title=CEO'
-            ,25
-            ,'delete'
-            ,array('project_id' => 22, 'title' => 'CEO')
-            ,false
+                ,BASE_URL . '/projects/22/people/25/delete.json?title=CEO'
+                ,25
+                ,'delete'
+                ,array('project_id' => 22, 'title' => 'CEO')
+                ,false
             ),
         );
     }
@@ -605,7 +624,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testElementDelete($response, $url, $id, $method, array $params, $return)
     {
-        $connection = $this->getMockedConnection('delete', $url, null, $response);
+        $connection = $this->getMockedConnection('delete', $url, null, $response, array(), array('accept'=>'application/json'));
         $person = new Person(array('id' => $id), $connection);
         $this->assertEquals($return, $person->elementDelete($method, $params));
     }
@@ -615,7 +634,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testElementHead($response, $url, $id, $method, array $params, $return)
     {
-        $connection = $this->getMockedConnection('head', $url, null, $response);
+        $connection = $this->getMockedConnection('head', $url, null, $response, array(), array());
         $person = new Person(array('id' => $id), $connection);
         $this->assertEquals($return, $person->elementHead($method, $params));
     }
@@ -625,17 +644,17 @@ class BaseTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 200
-            ,BASE_URL . '/people/fire.xml?filter=%2A&sex=man'
-            ,'fire'
-            ,array('filter' => '*', 'sex' => 'man')
-            ,true
+                ,BASE_URL . '/people/fire.json?filter=%2A&sex=man'
+                ,'fire'
+                ,array('filter' => '*', 'sex' => 'man')
+                ,true
             ),
             array(
                 201
-            ,BASE_URL . '/projects/22/people/delete.xml?title=CEO'
-            ,'delete'
-            ,array('project_id' => 22, 'title' => 'CEO')
-            ,false
+                ,BASE_URL . '/projects/22/people/delete.json?title=CEO'
+                ,'delete'
+                ,array('project_id' => 22, 'title' => 'CEO')
+                ,false
             ),
         );
     }
@@ -645,7 +664,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testCollectionDelete($response, $url, $method, array $params, $return)
     {
-        $connection = $this->getMockedConnection('delete', $url, null, $response);
+        $connection = $this->getMockedConnection('delete', $url, null, $response, array(), array('accept'=>'application/json'));
         $this->assertEquals($return, Person::collectionDelete($method, $params, $connection));
     }
 
@@ -654,7 +673,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      */
     public function testCollectionHead($response, $url, $method, array $params, $return)
     {
-        $connection = $this->getMockedConnection('head', $url, null, $response);
+        $connection = $this->getMockedConnection('head', $url, null, $response, array(), array('accept'=>'application/json'));
         $this->assertEquals($return, Person::collectionHead($method, $params, $connection));
     }
 
@@ -664,7 +683,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             array(
                 422
             ,json_encode(array('errors'=>array('Name cannot be blank','User is not a number')))
-            ,BASE_URL . '/todo_lists.xml',
+            ,BASE_URL . '/todo_lists.json',
                 array(
                     'Name cannot be blank',
                     'User is not a number',
