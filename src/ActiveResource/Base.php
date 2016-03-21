@@ -410,11 +410,11 @@ abstract class Base
      *
      * @return  boolean true if saved, false otherways
      */
-    public function save()
+    public function save($path=null)
     {
         try
         {
-            return $this->isNew() ? $this->create() : $this->update();
+            return $this->isNew() ? $this->create($path) : $this->update($path);
         }
         catch (\ActiveResource\Exceptions\ResourceInvalid $e)
         {
@@ -848,7 +848,10 @@ abstract class Base
 
             if (null === $from)
             {
-                $response = $connection->get(self::getCollectionPath($prefix_options, $query_options));
+                $response = $connection->get(
+                    self::getCollectionPath($prefix_options, $query_options),
+                    array('accept'=> self::getFormat()->getMimeType())
+                );
                 $decoded  = self::getFormat()->decode($response->getBody());
                 $attrs    = (isset($decoded[self::getCollectionName()])
                     && is_array($decoded[self::getCollectionName()]))
@@ -858,7 +861,10 @@ abstract class Base
             elseif (false !== strpos($from, '/'))
             {
                 $path     = sprintf('%s%s', $from, self::getQueryString($query_options));
-                $response = $connection->get($path);
+                $response = $connection->get(
+                    $path,
+                    array('accept'=> self::getFormat()->getMimeType())
+                );
                 $decoded  = self::getFormat()->decode($response->getBody());
                 $attrs    = $decoded[self::getCollectionName()];
             }
@@ -890,7 +896,10 @@ abstract class Base
             if (false !== strpos($from, '/'))
             {
                 $path     = sprintf('%s%s', $from, self::getQueryString($query_options));
-                $response = $connection->get($path);
+                $response = $connection->get(
+                    $path,
+                    array('accept'=> self::getFormat()->getMimeType())
+                );
                 $decoded  = self::getFormat()->decode($response->getBody());
                 $attrs    = $decoded[self::getElementName()];
             }
@@ -919,7 +928,10 @@ abstract class Base
         {
             list($from, $prefix_options, $query_options) = self::extractOptions($args);
 
-            $response = $connection->get(self::getElementPath($id, $prefix_options, $query_options));
+            $response = $connection->get(
+                self::getElementPath($id, $prefix_options, $query_options),
+                array('accept'=> self::getFormat()->getMimeType())
+            );
             $decoded  = self::getFormat()->decode($response->getBody());
             $attrs    = $decoded[self::getElementName()];
 
@@ -936,12 +948,13 @@ abstract class Base
      *
      * @return  boolean true if created, false otherways
      */
-    protected function create()
+    protected function create($path=null)
     {
+        if (!$path) $path = $this->getCollectionPath();
         $prepared_attrs = array();
         $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
-        $response = $this->getConnection()->post($this->getCollectionPath(),
+        $response = $this->getConnection()->post($path,
             self::getFormat()->encode($prepared_attrs), array(
                 'accept'        => self::getFormat()->getMimeType(),
                 'content-type'  => self::getFormat()->getMimeType()
@@ -964,12 +977,13 @@ abstract class Base
      *
      * @return  boolean true if updated, false otherways
      */
-    protected function update()
+    protected function update($path=null)
     {
+        if (!$path) $path = $this->getElementPath($this->getId());
         $prepared_attrs = array();
         $prepared_attrs[$this->getElementName()] = $this->schema->getValues();
 
-        $response = $this->getConnection()->put($this->getElementPath($this->getId()),
+        $response = $this->getConnection()->put($path,
             self::getFormat()->encode($prepared_attrs), array(
                 'accept' => self::getFormat()->getMimeType(),
                 'content-type' => self::getFormat()->getMimeType()
