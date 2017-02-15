@@ -195,4 +195,22 @@ class GuzzleConnectionTest extends PHPUnit_Framework_TestCase
         //$this->setExpectedException($exception);
         $connection->get('/');
     }
+
+    /**
+    public function testRetry() {
+        $connection = new GuzzleConnection(MOCK_DATA_URL);
+        $mockedClient = $this->getMock('\cdyweb\http\Adapter');
+        $connection->setClient($mockedClient);
+        $response = (new \cdyweb\http\psr\Response(429, ['Retry-After'=>2]));
+        $mockedClient
+            ->expects($this->once())
+            ->method('send')
+            ->will($this->throwException(new \cdyweb\http\Exception\RequestException('',new \cdyweb\http\psr\Request('get','/'),$response)));
+        $mockedClient
+            ->expects($this->once())
+            ->method('send')
+            ->will($this->returnValue($response));
+        $connection->get('/');
+    }
+    **/
 }

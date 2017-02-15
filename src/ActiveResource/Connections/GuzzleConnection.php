@@ -20,6 +20,8 @@ class GuzzleConnection extends Connection {
      */
     protected $client;
 
+    private $retry_after = null;
+
     /**
      * @param \cdyweb\http\Adapter $client
      */
@@ -262,9 +264,11 @@ class GuzzleConnection extends Connection {
      */
     public function client_call($method, $path, $body, array $headers = array()) {
         try {
-            return $this->getClient()->send($this->getClient()->createRequest(
+            $result = $this->getClient()->send($this->getClient()->createRequest(
                 $method, $this->uri . $path, $headers, $body
             ));
+            $this->retry_after = null;
+            return $result;
         } catch (RequestException $ex) {
             switch ($ex->getCode()) {
                 case 300:
@@ -297,12 +301,29 @@ class GuzzleConnection extends Connection {
                 case 410:
                     throw new \ActiveResource\Exceptions\ResourceGone($ex);
                     break;
-                case 404:
-                    throw new \ActiveResource\Exceptions\ResourceNotFound($ex);
-                    break;
                 case 422:
                     throw new \ActiveResource\Exceptions\ResourceInvalid($ex);
                     break;
+                case 429:
+                    if ($this->retry_after != null) {
+                        throw new \ActiveResource\Exceptions\ConnectionException($ex);
+                        break;
+                    }
+                    $response = $ex->getResponse();
+                    $str_arr = $response->getHeader('Retry-After');
+                    if (!empty($str_arr)) {
+                        $str = current($str_arr);
+                        if (is_numeric($str)) {
+                            $this->retry_after = max(1, intval($str));
+                        } else {
+                            $this->retry_after = max(1, strtotime($str)-time());
+                        }
+                    } else {
+                        $this->retry_after = 1;
+                    }
+                    sleep($this->retry_after);
+                    usleep(100000);
+                    return $this->client_call($method, $path, $body, $headers);
                 case 500:
                 case 501:
                 case 502:
