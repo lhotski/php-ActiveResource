@@ -1,0 +1,33 @@
+{
+  "name": "cdyweb/php-active-resource",
+  "description": "port of RoR ActiveResource library to php 5.5",
+  "keywords":["active resource"],
+  "type": "library",
+  "homepage": "https://github.com/CDyWeb/php-ActiveResource",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dmitry Prokudin",
+      "homepage": "https://github.com/lhotski",
+      "role": "Developer"
+    },
+    {
+      "name": "Erwin Kooi",
+      "homepage": "http://cdyweb.com/",
+      "email": "composer@cdyweb.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.3",
+    "cdyweb/http-adapter": ">=0.2.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.1.*"
+  },
+  "autoload": {
+    "psr-0": {
+      "ActiveResource": "src/"
+    }
+  }
+}

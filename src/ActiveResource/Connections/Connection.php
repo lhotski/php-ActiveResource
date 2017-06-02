@@ -10,6 +10,8 @@
 
 namespace ActiveResource\Connections;
 
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * Connection interface describes base connection object
  *
@@ -18,155 +20,189 @@ namespace ActiveResource\Connections;
  * @author     Konstantin Kudryashov <ever.zet@gmail.com>
  * @version    1.0.0
  */
-interface Connection
+abstract class Connection
 {
-  /**
-   * Returns site pure URL (without path & user parts)
-   *
-   * @return  string        site URL
-   */
-  public function getSite();
 
-  /**
-   * Sets base site URL
-   * 
-   * http://site.com/base/path
-   * https://user@pass:site.com/base/path
-   *
-   * @param   string  $site base site URL
-   */
-  public function setSite($site);
+    /**
+     * @var Connection
+     */
+    protected static $instance;
 
-  /**
-   * Sets base path
-   *
-   * @param   string  $path       base path to resources
-   */
-  public function setBasePath($path);
+    /**
+     * @return Connection
+     */
+    public static function getInstance()
+    {
+        return self::$instance;
+    }
 
-  /**
-   * Returns base path
-   *
-   * @return  string              base path to resources
-   */
-  public function getBasePath();
+    /**
+     * Connection constructor
+     *
+     * @param   string $site   base site URL
+     */
+    public function __construct($site)
+    {
+        if (null === $site || empty($site))
+        {
+            throw new \InvalidArgumentException('Missing site URI');
+        }
 
-  /**
-   * Returns connection username
-   *
-   * @return  string              username (login)
-   */
-  public function getUsername();
+        $this->setSite($site);
+    }
 
-  /**
-   * Returns connection password
-   *
-   * @return  string              password
-   */
-  public function getPassword();
+    public static function init($site) {
+        $class = get_called_class();
+        return self::$instance = new $class($site);
+    }
 
-  /**
-   * Returns connection auth type
-   *
-   * @return  string              auth type
-   */
-  public function getAuthType();
+    /**
+     * Returns site pure URL (without path & user parts)
+     *
+     * @return  string        site URL
+     */
+    abstract public function getSite();
 
-  /**
-   * Sets connection auth routines
-   *
-   * @param   string  $username   username
-   * @param   string  $password   password
-   * @param   string  $auth_type  auth type ('basic' or 'digest')
-   */
-  public function setAuth($username, $password, $auth_type = 'basic');
+    /**
+     * Sets base site URL
+     *
+     * http://site.com/base/path
+     * https://user@pass:site.com/base/path
+     *
+     * @param   string  $site base site URL
+     */
+    abstract public function setSite($site);
 
-  /**
-   * Returns specific connection header
-   *
-   * @param   string  $name       header name
-   * @return  string              header
-   */
-  public function getHeader($name);
+    /**
+     * Sets base path
+     *
+     * @param   string  $path       base path to resources
+     */
+    abstract public function setBasePath($path);
 
-  /**
-   * Sets specific connection headers
-   *
-   * @param   array   $headers    hash of headers
-   */
-  public function setHeaders(array $headers);
+    /**
+     * Returns base path
+     *
+     * @return  string              base path to resources
+     */
+    abstract public function getBasePath();
 
-  /**
-   * Sets specific connection header
-   *
-   * @param   string  $name       header name
-   * @param   string  $value      header
-   */
-  public function setHeader($name, $value);
+    /**
+     * Returns connection username
+     *
+     * @return  string              username (login)
+     */
+    abstract public function getUsername();
 
-  /**
-   * Returns connection timeout in ms
-   *
-   * @return  integer             connection timeout
-   */
-  public function getTimeout();
+    /**
+     * Returns connection password
+     *
+     * @return  string              password
+     */
+    abstract public function getPassword();
 
-  /**
-   * Sets connection timeout
-   *
-   * @param   integer $timeout    connection timeout
-   */
-  public function setTimeout($timeout);
+    /**
+     * Returns connection auth type
+     *
+     * @return  string              auth type
+     */
+    abstract public function getAuthType();
 
-  /**
-   * Sends HEAD request & returns formatted response object
-   *
-   * @param   string  $path                     resource path
-   * @param   array   $headers                  specific headers hash
-   * 
-   * @return  ActiveResource\Responses\Response response instance
-   */
-  public function head($path, array $headers = array());
+    /**
+     * Sets connection auth routines
+     *
+     * @param   string  $username   username
+     * @param   string  $password   password
+     * @param   string  $auth_type  auth type ('basic' or 'digest')
+     */
+    abstract public function setAuth($username, $password, $auth_type = 'basic');
 
-  /**
-   * Sends GET request & returns formatted response object
-   *
-   * @param   string  $path                     resource path
-   * @param   array   $headers                  specific headers hash
-   * 
-   * @return  ActiveResource\Responses\Response response instance
-   */
-  public function get($path, array $headers = array());
+    /**
+     * Returns specific connection header
+     *
+     * @param   string  $name       header name
+     * @return  string              header
+     */
+    abstract public function getHeader($name);
 
-  /**
-   * Sends DELETE request & returns formatted response object
-   *
-   * @param   string  $path                     resource path
-   * @param   array   $headers                  specific headers hash
-   * 
-   * @return  ActiveResource\Responses\Response response instance
-   */
-  public function delete($path, array $headers = array());
+    /**
+     * Sets specific connection headers
+     *
+     * @param   array   $headers    hash of headers
+     */
+    abstract public function setHeaders(array $headers);
 
-  /**
-   * Sends PUT request & returns formatted response object
-   *
-   * @param   string  $path                     resource path
-   * @param   array   $headers                  specific headers hash
-   * @param   string  $body                     request body
-   * 
-   * @return  ActiveResource\Responses\Response response instance
-   */
-  public function put($path, $body, array $headers = array());
+    /**
+     * Sets specific connection header
+     *
+     * @param   string  $name       header name
+     * @param   string  $value      header
+     */
+    abstract public function setHeader($name, $value);
 
-  /**
-   * Sends POST request & returns formatted response object
-   *
-   * @param   string  $path                     resource path
-   * @param   array   $headers                  specific headers hash
-   * @param   string  $body                     request body
-   * 
-   * @return  ActiveResource\Responses\Response response instance
-   */
-  public function post($path, $body, array $headers = array());
+    /**
+     * Returns connection timeout in ms
+     *
+     * @return  integer             connection timeout
+     */
+    abstract public function getTimeout();
+
+    /**
+     * Sets connection timeout
+     *
+     * @param   integer $timeout    connection timeout
+     */
+    abstract public function setTimeout($timeout);
+
+    /**
+     * Sends HEAD request & returns formatted response object
+     *
+     * @param   string  $path                     resource path
+     * @param   array   $headers                  specific headers hash
+     *
+     * @return  ResponseInterface response instance
+     */
+    abstract public function head($path, array $headers = array());
+
+    /**
+     * Sends GET request & returns formatted response object
+     *
+     * @param   string  $path                     resource path
+     * @param   array   $headers                  specific headers hash
+     *
+     * @return  ResponseInterface response instance
+     */
+    abstract public function get($path, array $headers = array());
+
+    /**
+     * Sends DELETE request & returns formatted response object
+     *
+     * @param   string  $path                     resource path
+     * @param   array   $headers                  specific headers hash
+     *
+     * @return  ResponseInterface response instance
+     */
+    abstract public function delete($path, array $headers = array());
+
+    /**
+     * Sends PUT request & returns formatted response object
+     *
+     * @param   string  $path                     resource path
+     * @param   array   $headers                  specific headers hash
+     * @param   string  $body                     request body
+     *
+     * @return  ResponseInterface response instance
+     */
+    abstract public function put($path, $body, array $headers = array());
+
+    /**
+     * Sends POST request & returns formatted response object
+     *
+     * @param   string  $path                     resource path
+     * @param   array   $headers                  specific headers hash
+     * @param   string  $body                     request body
+     *
+     * @return  ResponseInterface response instance
+     */
+    abstract public function post($path, $body, array $headers = array());
 }

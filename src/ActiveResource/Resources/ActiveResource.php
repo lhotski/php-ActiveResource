@@ -22,19 +22,19 @@ use ActiveResource\Connections\Connection;
  */
 class ActiveResource
 {
-  protected $resource_class;
-  protected $connection;
+    protected $resource_class;
+    protected $connection;
 
-  public function __construct($class, Connection $connection)
-  {
-    $this->resource_class = $class;
-    $this->connection     = $connection;
-  }
+    public function __construct($class, Connection $connection)
+    {
+        $this->resource_class = $class;
+        $this->connection     = $connection;
+    }
 
-  public function __call($func, array $args)
-  {
-    $args[] = $this->connection;
+    public function __call($func, array $args)
+    {
+        $args[] = $this->connection;
 
-    return call_user_func_array(array($this->resource_class, $func), $args);
-  }
+        return call_user_func_array(array($this->resource_class, $func), $args);
+    }
 }

@@ -20,35 +20,35 @@ namespace ActiveResource\Formats;
  */
 interface Format
 {
-  /**
-   * Returns format extension for resource
-   *
-   * @return  string  resource format extension
-   */
-  public function getExtension();
+    /**
+     * Returns format extension for resource
+     *
+     * @return  string  resource format extension
+     */
+    public function getExtension();
 
-  /**
-   * Returns format MIME type for resource
-   *
-   * @return  string  request/response MIME type
-   */
-  public function getMimeType();
+    /**
+     * Returns format MIME type for resource
+     *
+     * @return  string  request/response MIME type
+     */
+    public function getMimeType();
 
-  /**
-   * Encodes object values to resource attributes
-   *
-   * @param   array   $attrs  object values
-   * 
-   * @return  string          request body
-   */
-  public function encode(array $attrs);
+    /**
+     * Encodes object values to resource attributes
+     *
+     * @param   array   $attrs  object values
+     *
+     * @return  string          request body
+     */
+    public function encode(array $attrs);
 
-  /**
-   * Decodes resource attributes to object values
-   *
-   * @param   string  $body response body
-   * 
-   * @return  array         object values
-   */
-  public function decode($body);
+    /**
+     * Decodes resource attributes to object values
+     *
+     * @param   string  $body response body
+     *
+     * @return  array         object values
+     */
+    public function decode($body);
 }

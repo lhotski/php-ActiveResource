@@ -1,4 +1,4 @@
 <?php
 
-class Person extends ActiveResource\Base{}
+class Person extends \ActiveResource\Base{}
 

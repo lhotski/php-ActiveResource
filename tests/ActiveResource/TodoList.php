@@ -1,4 +1,4 @@
 <?php
 
-class TodoList extends ActiveResource\Base{}
+class TodoList extends \ActiveResource\Base{}
 

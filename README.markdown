@@ -9,5 +9,6 @@ Contributors
 ============
 
 * everzet (lead): [http://github.com/everzet](http://github.com/everzet)
+* Erwin Kooi : [http://github.com/CDyWeb](http://github.com/CDyWeb)
 
 ARes is maintained by Ruby on Rails community  [http://github.com/rails/rails/tree/master/activeresource/](http://github.com/rails/rails/tree/master/activeresource/)

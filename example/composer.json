@@ -1,0 +1,6 @@
+{
+    "require": {
+        "cdyweb/php-active-resource" : "*",
+        "guzzlehttp/guzzle": "~3.0"
+    }
+}
